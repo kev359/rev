@@ -298,15 +298,157 @@ window.deleteMinder = async function(id) {
   }
 };
 
-// Add new buttons
+// ============================================
+// ROUTE MODAL FUNCTIONALITY
+// ============================================
+
+let currentRouteId = null;
+
+// Add Route Button
 document.getElementById('addRouteBtn')?.addEventListener('click', () => {
-  alert('Add route modal would open here');
+  openRouteModal();
 });
 
+// Close Route Modal
+document.getElementById('closeRouteModal')?.addEventListener('click', closeRouteModal);
+document.getElementById('cancelRouteBtn')?.addEventListener('click', closeRouteModal);
+
+// Route Form Submit
+document.getElementById('routeForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  await saveRoute();
+});
+
+/**
+ * Open route modal
+ */
+function openRouteModal(routeId = null) {
+  const modal = document.getElementById('routeModal');
+  const form = document.getElementById('routeForm');
+  const title = document.getElementById('routeModalTitle');
+  
+  if (!modal || !form) return;
+  
+  // Reset form
+  form.reset();
+  clearFormErrors(form);
+  currentRouteId = routeId;
+  
+  if (routeId) {
+    title.textContent = 'Edit Route';
+    loadRouteData(routeId);
+  } else {
+    title.textContent = 'Add Route';
+  }
+  
+  modal.style.display = 'flex';
+}
+
+/**
+ * Close route modal
+ */
+function closeRouteModal() {
+  const modal = document.getElementById('routeModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  currentRouteId = null;
+}
+
+/**
+ * Load route data for editing
+ */
+async function loadRouteData(routeId) {
+  try {
+    const route = await routesService.getById(routeId);
+    
+    document.getElementById('routeId').value = route.id;
+    document.getElementById('routeName').value = route.name;
+    document.getElementById('vehicleNo').value = route.vehicle_no;
+    document.getElementById('term').value = route.term;
+    document.getElementById('year').value = route.year;
+    document.getElementById('areas').value = route.areas?.join(', ') || '';
+  } catch (error) {
+    console.error('Load route error:', error);
+    alert('Failed to load route data');
+    closeRouteModal();
+  }
+}
+
+/**
+ * Save route
+ */
+async function saveRoute() {
+  const form = document.getElementById('routeForm');
+  const submitBtn = document.getElementById('submitRouteBtn');
+  const errorDiv = document.getElementById('routeFormError');
+  
+  // Clear previous errors
+  clearFormErrors(form);
+  errorDiv.style.display = 'none';
+  
+  // Get form data
+  const formData = {
+    name: document.getElementById('routeName').value.trim(),
+    vehicle_no: document.getElementById('vehicleNo').value.trim(),
+    term: document.getElementById('term').value.trim(),
+    year: parseInt(document.getElementById('year').value),
+    areas: document.getElementById('areas').value
+      .split(',')
+      .map(a => a.trim())
+      .filter(a => a.length > 0)
+  };
+  
+  // Validate
+  if (!formData.name || !formData.vehicle_no || !formData.term || !formData.year) {
+    errorDiv.textContent = 'Please fill in all required fields';
+    errorDiv.style.display = 'block';
+    return;
+  }
+  
+  setButtonLoading(submitBtn, true);
+  
+  try {
+    if (currentRouteId) {
+      await routesService.update(currentRouteId, formData);
+      showMessage('Route updated successfully!', 'success');
+    } else {
+      await routesService.create(formData);
+      showMessage('Route created successfully!', 'success');
+    }
+    
+    closeRouteModal();
+    await loadRoutes();
+  } catch (error) {
+    console.error('Save route error:', error);
+    errorDiv.textContent = error.message || 'Failed to save route';
+    errorDiv.style.display = 'block';
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+// Make functions globally accessible
+window.editRoute = function(id) {
+  openRouteModal(id);
+};
+
+// ============================================
+// DRIVER & MINDER MODALS (Simplified)
+// ============================================
+
 document.getElementById('addDriverBtn')?.addEventListener('click', () => {
-  alert('Add driver modal would open here');
+  alert('Driver modal functionality coming soon. For now, please add drivers via Supabase SQL Editor.');
 });
 
 document.getElementById('addMinderBtn')?.addEventListener('click', () => {
-  alert('Add minder modal would open here');
+  alert('Minder modal functionality coming soon. For now, please add minders via Supabase SQL Editor.');
 });
+
+window.editDriver = function(id) {
+  alert('Driver editing coming soon.');
+};
+
+window.editMinder = function(id) {
+  alert('Minder editing coming soon.');
+};
