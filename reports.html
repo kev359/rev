@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lelani School Transport Management System - Generate Reports">
+    <title>Reports - Lelani School Transport System</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="src/styles/variables.css">
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="stylesheet" href="src/styles/reports.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <header class="page-header">
+                <div>
+                    <h1>Generate Reports</h1>
+                    <p class="page-subtitle">Create PDF and Excel reports for any route</p>
+                </div>
+            </header>
+
+            <!-- Report Configuration -->
+            <div class="report-config-section">
+                <h2>Report Configuration</h2>
+                
+                <form id="reportConfigForm" class="report-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reportRoute">Select Route <span class="required">*</span></label>
+                            <select id="reportRoute" name="reportRoute" required>
+                                <option value="">Choose a route</option>
+                                <!-- Populated by JavaScript -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reportFormat">Report Format <span class="required">*</span></label>
+                            <select id="reportFormat" name="reportFormat" required>
+                                <option value="pdf">PDF (Branded)</option>
+                                <option value="excel">Excel (Spreadsheet)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="includeInactive">Include Inactive Learners</label>
+                            <div class="checkbox-group">
+                                <input 
+                                    type="checkbox" 
+                                    id="includeInactive" 
+                                    name="includeInactive"
+                                >
+                                <label for="includeInactive" class="checkbox-label">
+                                    Show inactive learners in the report
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sortBy">Sort By</label>
+                            <select id="sortBy" name="sortBy">
+                                <option value="time">Pickup Time</option>
+                                <option value="name">Learner Name</option>
+                                <option value="class">Class</option>
+                                <option value="area">Pickup Area</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large" id="generateBtn">
+                            <span class="btn-text">
+                                <span class="icon">📄</span>
+                                Generate Report
+                            </span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="spinner"></span>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Route Preview -->
+            <div class="route-preview-section" id="routePreviewSection" style="display: none;">
+                <h2>Route Preview</h2>
+                
+                <div class="route-info-card">
+                    <div class="route-header">
+                        <div>
+                            <h3 id="previewRouteName">Route E</h3>
+                            <p id="previewRouteDetails">Vehicle: KBZ 123A | Term 1, 2026</p>
+                        </div>
+                        <div class="route-stats">
+                            <span class="stat-badge">
+                                <strong id="previewLearnerCount">0</strong> Learners
+                            </span>
+                            <span class="stat-badge">
+                                <strong id="previewAreaCount">0</strong> Areas
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="route-details">
+                        <div class="detail-item">
+                            <strong>Driver:</strong>
+                            <span id="previewDriverName">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Driver Phone:</strong>
+                            <span id="previewDriverPhone">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Minder:</strong>
+                            <span id="previewMinderName">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Minder Phone:</strong>
+                            <span id="previewMinderPhone">-</span>
+                        </div>
+                    </div>
+
+                    <div class="areas-covered">
+                        <strong>Areas Covered:</strong>
+                        <div id="previewAreas" class="area-tags">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learners Preview Table -->
+                <div class="preview-table-container">
+                    <h3>Learners List Preview</h3>
+                    <table class="data-table" id="previewTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Admission No.</th>
+                                <th>Name</th>
+                                <th>Class</th>
+                                <th>Pickup Area</th>
+                                <th>Pickup Time</th>
+                                <th>Father Phone</th>
+                                <th>Mother Phone</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTableBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Reports -->
+            <div class="recent-reports-section">
+                <h2>Recent Reports</h2>
+                <div class="reports-list" id="recentReportsList">
+                    <p class="empty-message">No reports generated yet. Create your first report above.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script type="module" src="src/config.js"></script>
+    <script type="module" src="src/ui/navbar.js"></script>
+    <script type="module" src="src/reports/reports.js"></script>
+</body>
+</html>

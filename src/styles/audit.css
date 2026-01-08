@@ -1,0 +1,124 @@
+/* ============================================
+   AUDIT LOGS PAGE STYLES
+   ============================================ */
+
+/* Filters Section */
+.filters-section {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.filter-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  align-items: end;
+}
+
+.filter-select {
+  width: 100%;
+}
+
+/* Audit Logs Table */
+.data-table .action-cell {
+  font-weight: var(--font-weight-medium);
+  text-transform: capitalize;
+}
+
+.data-table .action-cell.created {
+  color: var(--color-success);
+}
+
+.data-table .action-cell.updated {
+  color: var(--color-info);
+}
+
+.data-table .action-cell.deactivated {
+  color: var(--color-warning);
+}
+
+.data-table .action-cell.reactivated {
+  color: var(--color-success);
+}
+
+.data-table .value-cell {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  background-color: var(--color-background);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-table .role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.data-table .role-badge.admin {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.data-table .role-badge.driver {
+  background-color: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+#pageInfo {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    min-width: 1000px;
+  }
+}
+
+@media (max-width: 576px) {
+  .filter-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .pagination .btn {
+    width: 100%;
+  }
+}

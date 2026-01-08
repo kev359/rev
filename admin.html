@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lelani School Transport Management System - Admin Panel">
+    <title>Admin Panel - Lelani School Transport System</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="src/styles/variables.css">
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="stylesheet" href="src/styles/admin.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <header class="page-header">
+                <div>
+                    <h1>Admin Panel</h1>
+                    <p class="page-subtitle">Manage routes, drivers, minders, and system settings</p>
+                </div>
+            </header>
+
+            <!-- Admin Tabs -->
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="routes">Routes</button>
+                <button class="tab-btn" data-tab="drivers">Drivers</button>
+                <button class="tab-btn" data-tab="minders">Minders</button>
+                <button class="tab-btn" data-tab="import">Import Data</button>
+                <button class="tab-btn" data-tab="rollover">Year-End Rollover</button>
+            </div>
+
+            <!-- Routes Tab -->
+            <div class="tab-content active" id="routesTab">
+                <div class="tab-header">
+                    <h2>Manage Routes</h2>
+                    <button class="btn btn-primary" id="addRouteBtn">
+                        <span class="icon">➕</span>
+                        Add Route
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Route Name</th>
+                                <th>Vehicle No.</th>
+                                <th>Term</th>
+                                <th>Year</th>
+                                <th>Status</th>
+                                <th>Learners</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="routesTableBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Drivers Tab -->
+            <div class="tab-content" id="driversTab">
+                <div class="tab-header">
+                    <h2>Manage Drivers</h2>
+                    <button class="btn btn-primary" id="addDriverBtn">
+                        <span class="icon">➕</span>
+                        Add Driver
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Assigned Route</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="driversTableBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Minders Tab -->
+            <div class="tab-content" id="mindersTab">
+                <div class="tab-header">
+                    <h2>Manage Minders</h2>
+                    <button class="btn btn-primary" id="addMinderBtn">
+                        <span class="icon">➕</span>
+                        Add Minder
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Assigned Driver</th>
+                                <th>Assigned Route</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mindersTableBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Import Data Tab -->
+            <div class="tab-content" id="importTab">
+                <div class="tab-header">
+                    <h2>Import Data</h2>
+                    <p class="tab-description">Upload Excel or CSV files to bulk import learners and areas</p>
+                </div>
+
+                <div class="import-section">
+                    <div class="import-card">
+                        <h3>Import Learners</h3>
+                        <p>Upload an Excel/CSV file with learner data</p>
+                        <div class="upload-area" id="learnersUploadArea">
+                            <input type="file" id="learnersFileInput" accept=".xlsx,.xls,.csv" hidden>
+                            <div class="upload-placeholder">
+                                <span class="upload-icon">📤</span>
+                                <p>Click to upload or drag and drop</p>
+                                <small>Excel (.xlsx, .xls) or CSV files</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" id="downloadLearnerTemplate">
+                            Download Template
+                        </button>
+                    </div>
+
+                    <div class="import-card">
+                        <h3>Import Areas</h3>
+                        <p>Upload an Excel/CSV file with pickup areas</p>
+                        <div class="upload-area" id="areasUploadArea">
+                            <input type="file" id="areasFileInput" accept=".xlsx,.xls,.csv" hidden>
+                            <div class="upload-placeholder">
+                                <span class="upload-icon">📤</span>
+                                <p>Click to upload or drag and drop</p>
+                                <small>Excel (.xlsx, .xls) or CSV files</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" id="downloadAreaTemplate">
+                            Download Template
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Import Preview -->
+                <div id="importPreview" class="import-preview" style="display: none;">
+                    <h3>Import Preview</h3>
+                    <div id="importPreviewContent"></div>
+                    <div class="import-actions">
+                        <button class="btn btn-secondary" id="cancelImport">Cancel</button>
+                        <button class="btn btn-primary" id="confirmImport">
+                            <span class="btn-text">Confirm Import</span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="spinner"></span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Year-End Rollover Tab -->
+            <div class="tab-content" id="rolloverTab">
+                <div class="tab-header">
+                    <h2>Year-End Rollover</h2>
+                    <p class="tab-description">Archive old routes and create new ones for the next term/year</p>
+                </div>
+
+                <div class="rollover-section">
+                    <div class="rollover-card">
+                        <h3>Archive & Duplicate Route</h3>
+                        
+                        <form id="rolloverForm" class="rollover-form">
+                            <div class="form-group">
+                                <label for="rolloverRoute">Select Route to Archive <span class="required">*</span></label>
+                                <select id="rolloverRoute" name="rolloverRoute" required>
+                                    <option value="">Choose a route</option>
+                                    <!-- Populated by JavaScript -->
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="newTerm">New Term <span class="required">*</span></label>
+                                    <input 
+                                        type="text" 
+                                        id="newTerm" 
+                                        name="newTerm" 
+                                        required 
+                                        placeholder="e.g., Term 1"
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="newYear">New Year <span class="required">*</span></label>
+                                    <input 
+                                        type="number" 
+                                        id="newYear" 
+                                        name="newYear" 
+                                        required 
+                                        placeholder="e.g., 2027"
+                                        min="2026"
+                                        max="2050"
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Learner Data Options</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input 
+                                            type="radio" 
+                                            name="copyLearners" 
+                                            value="true" 
+                                            checked
+                                        >
+                                        Copy learners to new route (all marked as active)
+                                    </label>
+                                    <label class="radio-label">
+                                        <input 
+                                            type="radio" 
+                                            name="copyLearners" 
+                                            value="false"
+                                        >
+                                        Start with empty learner list
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="warning-box">
+                                <strong>⚠️ Warning:</strong>
+                                <p>This action will:</p>
+                                <ul>
+                                    <li>Archive the selected route (status changed to "archived")</li>
+                                    <li>Create a duplicate route for the new term/year</li>
+                                    <li>Copy all areas to the new route</li>
+                                    <li>Optionally copy learners (based on your selection)</li>
+                                </ul>
+                                <p><strong>This action cannot be undone.</strong></p>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-danger btn-large" id="rolloverBtn">
+                                    <span class="btn-text">
+                                        <span class="icon">🔄</span>
+                                        Archive & Duplicate Route
+                                    </span>
+                                    <span class="btn-loader" style="display: none;">
+                                        <span class="spinner"></span>
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Archived Routes -->
+                    <div class="archived-routes-section">
+                        <h3>Archived Routes</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Route Name</th>
+                                        <th>Vehicle No.</th>
+                                        <th>Term</th>
+                                        <th>Year</th>
+                                        <th>Archived Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="archivedRoutesTableBody">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Route Modal -->
+    <div id="routeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="routeModalTitle">Add Route</h2>
+                <button class="modal-close" id="closeRouteModal">&times;</button>
+            </div>
+            <form id="routeForm" class="modal-form">
+                <input type="hidden" id="routeId" name="routeId">
+                
+                <div class="form-group">
+                    <label for="routeName">Route Name <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="routeName" 
+                        name="routeName" 
+                        required 
+                        placeholder="e.g., Route E"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="vehicleNo">Vehicle Number <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="vehicleNo" 
+                        name="vehicleNo" 
+                        required 
+                        placeholder="e.g., KBZ 123A"
+                    >
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="term">Term <span class="required">*</span></label>
+                        <input 
+                            type="text" 
+                            id="term" 
+                            name="term" 
+                            required 
+                            placeholder="e.g., Term 1"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="year">Year <span class="required">*</span></label>
+                        <input 
+                            type="number" 
+                            id="year" 
+                            name="year" 
+                            required 
+                            placeholder="e.g., 2026"
+                            min="2026"
+                            max="2050"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="areas">Areas Covered</label>
+                    <textarea 
+                        id="areas" 
+                        name="areas" 
+                        rows="3" 
+                        placeholder="Enter areas separated by commas (e.g., Westlands, Parklands, Kilimani)"
+                    ></textarea>
+                    <small class="form-hint">Separate multiple areas with commas</small>
+                </div>
+
+                <div id="routeFormError" class="error-message" style="display: none;"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelRouteBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitRouteBtn">
+                        <span class="btn-text">Save Route</span>
+                        <span class="btn-loader" style="display: none;">
+                            <span class="spinner"></span>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Driver Modal -->
+    <div id="driverModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="driverModalTitle">Add Driver</h2>
+                <button class="modal-close" id="closeDriverModal">&times;</button>
+            </div>
+            <form id="driverForm" class="modal-form">
+                <input type="hidden" id="driverId" name="driverId">
+                
+                <div class="form-group">
+                    <label for="driverName">Driver Name <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="driverName" 
+                        name="driverName" 
+                        required 
+                        placeholder="Enter full name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="driverEmail">Email <span class="required">*</span></label>
+                    <input 
+                        type="email" 
+                        id="driverEmail" 
+                        name="driverEmail" 
+                        required 
+                        placeholder="driver@lelani.school"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="driverPhone">Phone Number <span class="required">*</span></label>
+                    <input 
+                        type="tel" 
+                        id="driverPhone" 
+                        name="driverPhone" 
+                        required 
+                        placeholder="+254712345678"
+                        pattern="^\+254[0-9]{9}$"
+                    >
+                    <small class="form-hint">Format: +254XXXXXXXXX</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="driverRoute">Assigned Route <span class="required">*</span></label>
+                    <select id="driverRoute" name="driverRoute" required>
+                        <option value="">Select route</option>
+                        <!-- Populated by JavaScript -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="driverPassword">Password <span class="required">*</span></label>
+                    <input 
+                        type="password" 
+                        id="driverPassword" 
+                        name="driverPassword" 
+                        required 
+                        placeholder="Minimum 8 characters"
+                        minlength="8"
+                    >
+                    <small class="form-hint">Minimum 8 characters (only required for new drivers)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="driverRole">Role</label>
+                    <select id="driverRole" name="driverRole">
+                        <option value="driver">Driver</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <div id="driverFormError" class="error-message" style="display: none;"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelDriverBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitDriverBtn">
+                        <span class="btn-text">Save Driver</span>
+                        <span class="btn-loader" style="display: none;">
+                            <span class="spinner"></span>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Minder Modal -->
+    <div id="minderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="minderModalTitle">Add Minder</h2>
+                <button class="modal-close" id="closeMinderModal">&times;</button>
+            </div>
+            <form id="minderForm" class="modal-form">
+                <input type="hidden" id="minderId" name="minderId">
+                
+                <div class="form-group">
+                    <label for="minderName">Minder Name <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="minderName" 
+                        name="minderName" 
+                        required 
+                        placeholder="Enter full name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="minderPhone">Phone Number <span class="required">*</span></label>
+                    <input 
+                        type="tel" 
+                        id="minderPhone" 
+                        name="minderPhone" 
+                        required 
+                        placeholder="+254712345678"
+                        pattern="^\+254[0-9]{9}$"
+                    >
+                    <small class="form-hint">Format: +254XXXXXXXXX</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="minderDriver">Assigned Driver <span class="required">*</span></label>
+                    <select id="minderDriver" name="minderDriver" required>
+                        <option value="">Select driver</option>
+                        <!-- Populated by JavaScript -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="minderRoute">Assigned Route <span class="required">*</span></label>
+                    <select id="minderRoute" name="minderRoute" required disabled>
+                        <option value="">Select driver first</option>
+                        <!-- Auto-populated based on driver selection -->
+                    </select>
+                    <small class="form-hint">Route is automatically assigned based on driver</small>
+                </div>
+
+                <div id="minderFormError" class="error-message" style="display: none;"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelMinderBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitMinderBtn">
+                        <span class="btn-text">Save Minder</span>
+                        <span class="btn-loader" style="display: none;">
+                            <span class="spinner"></span>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="src/config.js"></script>
+    <script type="module" src="src/ui/navbar.js"></script>
+    <script type="module" src="src/admin/admin.js"></script>
+</body>
+</html>
