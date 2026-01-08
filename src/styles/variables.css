@@ -104,8 +104,10 @@
   --input-padding-x: 1rem;
   --input-padding-y: 0.75rem;
   --input-border-width: 1px;
-  --input-border-color: var(--color-border);
+  --input-border-color: #999999;  /* Darker border for visibility */
   --input-border-radius: var(--radius-md);
+  --input-text: #000000;          /* Pure black text */
+  --input-placeholder: #555555;   /* Darker placeholder */
   --input-focus-border-color: var(--color-primary);
   --input-focus-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
   
