@@ -242,8 +242,10 @@ textarea:focus {
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--color-text-disabled);
+  color: #888888; /* Darker placeholder for better visibility */
+  opacity: 1;
 }
+
 
 textarea {
   min-height: 100px;
