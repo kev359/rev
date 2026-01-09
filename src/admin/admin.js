@@ -6,6 +6,7 @@ import authService from '../auth/auth.service.js';
 import routesService from '../routes/routes.service.js';
 import driversService from '../drivers/drivers.service.js';
 import mindersService from '../minders/minders.service.js';
+import learnersService from '../learners/learners.service.js';
 import { validateForm, displayFormErrors, clearFormErrors, formatPhoneNumber } from '../utils/validators.js';
 import { setButtonLoading, showMessage, sanitizeHTML } from '../utils/helpers.js';
 
@@ -20,9 +21,33 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize tabs
   initializeTabs();
   
+  // Load stats
+  loadStats();
+  
   // Load initial tab
   await loadTab('routes');
 });
+
+/**
+ * Load admin stats
+ */
+async function loadStats() {
+  try {
+    const [routes, drivers, minders, learners] = await Promise.all([
+      routesService.getAll(),
+      driversService.getAll(),
+      mindersService.getAll(),
+      learnersService.getAll()
+    ]);
+
+    document.getElementById('statRoutes').textContent = routes.length || 0;
+    document.getElementById('statDrivers').textContent = drivers.length || 0;
+    document.getElementById('statMinders').textContent = minders.length || 0;
+    document.getElementById('statLearners').textContent = learners.length || 0;
+  } catch (error) {
+    console.error('Load stats error:', error);
+  }
+}
 
 /**
  * Initialize tabs
