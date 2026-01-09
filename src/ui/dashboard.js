@@ -7,7 +7,8 @@ import learnersService from '../learners/learners.service.js';
 import routesService from '../routes/routes.service.js';
 import driversService from '../drivers/drivers.service.js';
 import mindersService from '../minders/minders.service.js';
-import { setLoadingState, formatDate } from '../utils/helpers.js';
+import settingsService from '../settings/settings.service.js';
+import { setLoadingState, formatDate, sanitizeHTML } from '../utils/helpers.js';
 
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', async () => {
@@ -39,12 +40,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Load dashboard data
   await loadDashboardData(driver);
+  
+  // Load school configuration for admins
+  if (driver.role === 'admin') {
+    await loadSchoolConfig();
+  }
 
   // Setup refresh button
   const refreshBtn = document.getElementById('refreshBtn');
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
       loadDashboardData(driver);
+      if (driver.role === 'admin') {
+        loadSchoolConfig();
+      }
     });
   }
 });
@@ -219,4 +228,52 @@ function getActionText(action) {
     reactivated: 'reactivated a learner',
   };
   return texts[action] || 'modified';
+}
+
+/**
+ * Load school configuration (grades and streams) - Admin only
+ */
+async function loadSchoolConfig() {
+  const configSection = document.getElementById('schoolConfigSection');
+  const gradesList = document.getElementById('dashboardGradesList');
+  const streamsList = document.getElementById('dashboardStreamsList');
+  
+  if (!configSection || !gradesList || !streamsList) return;
+  
+  // Show the section
+  configSection.style.display = 'block';
+  
+  try {
+    const { grades, streams } = await settingsService.getAll();
+    
+    // Render grades (read-only, no delete buttons)
+    if (grades.length > 0) {
+      gradesList.innerHTML = grades.map(g => `
+        <span style="display: inline-block; padding: 6px 12px; background-color: #e0e0e0; 
+                     border-radius: 16px; border: 1px solid #999; color: #000; 
+                     font-size: 13px; font-weight: 500;">
+          ${sanitizeHTML(g.name)}
+        </span>
+      `).join('');
+    } else {
+      gradesList.innerHTML = '<span style="color: var(--color-text-secondary);">No grades configured</span>';
+    }
+    
+    // Render streams (read-only, no delete buttons)
+    if (streams.length > 0) {
+      streamsList.innerHTML = streams.map(s => `
+        <span style="display: inline-block; padding: 6px 12px; background-color: #e0e0e0; 
+                     border-radius: 16px; border: 1px solid #999; color: #000; 
+                     font-size: 13px; font-weight: 500;">
+          ${sanitizeHTML(s.name)}
+        </span>
+      `).join('');
+    } else {
+      streamsList.innerHTML = '<span style="color: var(--color-text-secondary);">No streams configured</span>';
+    }
+  } catch (error) {
+    console.error('Load school config error:', error);
+    gradesList.innerHTML = '<span style="color: red;">Failed to load</span>';
+    streamsList.innerHTML = '<span style="color: red;">Failed to load</span>';
+  }
 }
