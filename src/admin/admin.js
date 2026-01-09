@@ -7,8 +7,9 @@ import routesService from '../routes/routes.service.js';
 import driversService from '../drivers/drivers.service.js';
 import mindersService from '../minders/minders.service.js';
 import learnersService from '../learners/learners.service.js';
+import settingsService from '../settings/settings.service.js';
 import { validateForm, displayFormErrors, clearFormErrors, formatPhoneNumber } from '../utils/validators.js';
-import { setButtonLoading, showMessage, sanitizeHTML } from '../utils/helpers.js';
+import { setButtonLoading, showMessage, sanitizeHTML, generateId } from '../utils/helpers.js';
 
 let currentTab = 'routes';
 
@@ -95,6 +96,9 @@ async function loadTab(tab) {
       break;
     case 'rollover':
       await loadRolloverData();
+      break;
+    case 'settings':
+      await loadSettings();
       break;
   }
 }
@@ -813,8 +817,121 @@ async function saveMinder() {
 }
 
 // Make functions globally accessible
-window.editMinder = function(id) {
-  openMinderModal(id);
+// ============================================
+// SETTINGS TAB LOGIC
+// ============================================
+
+document.getElementById('addGradeBtn')?.addEventListener('click', () => addSetting('grade', 'newGradeInput'));
+document.getElementById('addStreamBtn')?.addEventListener('click', () => addSetting('stream', 'newStreamInput'));
+
+/**
+ * Load settings into UI
+ */
+async function loadSettings() {
+    const gradesList = document.getElementById('gradesList');
+    const streamsList = document.getElementById('streamsList');
+    
+    if (!gradesList || !streamsList) return;
+
+    try {
+        const { grades, streams } = await settingsService.getAll();
+        
+        renderSettingsTags(gradesList, grades, 'grade');
+        renderSettingsTags(streamsList, streams, 'stream');
+    } catch (error) {
+        console.error('Load settings error:', error);
+        showMessage('Failed to load settings', 'error');
+    }
+}
+
+/**
+ * Render tags for settings
+ */
+function renderSettingsTags(container, items, type) {
+    container.innerHTML = '';
+    
+    // If items have IDs, it means they are from DB and consistent.
+    // If items are defaults (no ID), we just show them but maybe disable delete?
+    // The service might return defaults with fake IDs or no IDs.
+    
+    if (items.length === 0) {
+        container.innerHTML = '<span class="text-secondary">No items found.</span>';
+        return;
+    }
+
+    items.forEach(item => {
+        const tag = document.createElement('div');
+        tag.className = 'tag';
+        tag.style.display = 'inline-flex';
+        tag.style.alignItems = 'center';
+        tag.style.gap = '8px';
+        tag.style.padding = '5px 10px';
+        tag.style.backgroundColor = '#f0f0f0';
+        tag.style.borderRadius = '20px';
+        tag.style.border = '1px solid #ddd';
+        
+        tag.innerHTML = `
+            <span>${sanitizeHTML(item.name)}</span>
+            ${item.id ? `<span class="delete-tag" style="cursor:pointer; color:red; font-weight:bold;" onclick="deleteSetting('${item.id}', '${type}')">&times;</span>` : ''}
+        `;
+        container.appendChild(tag);
+    });
+}
+
+/**
+ * Add a new setting
+ */
+async function addSetting(type, inputId) {
+    const input = document.getElementById(inputId);
+    const name = input.value.trim();
+    
+    if (!name) return;
+    
+    // Optimistic UI update? No, let's wait for DB.
+    const btnId = type === 'grade' ? 'addGradeBtn' : 'addStreamBtn';
+    const btn = document.getElementById(btnId);
+    setButtonLoading(btn, true);
+
+    try {
+        await settingsService.add(type, name);
+        input.value = '';
+        await loadSettings();
+        showMessage(`${type === 'grade' ? 'Grade' : 'Stream'} added successfully`, 'success');
+    } catch (error) {
+        console.error('Add setting error:', error);
+        if (error.code === '42P01') {
+            showMessage('Database table missing. Please ask developer to run SETTINGS_SETUP.sql', 'error');
+        } else {
+            showMessage('Failed to add item', 'error');
+        }
+    } finally {
+        setButtonLoading(btn, false);
+    }
+}
+
+/**
+ * Delete a setting
+ */
+window.deleteSetting = async function(id, type) {
+    if (!confirm('Are you sure you want to delete this?')) return;
+    
+    try {
+        await settingsService.delete(id);
+        await loadSettings();
+        showMessage('Item deleted', 'success');
+    } catch (error) {
+        console.error('Delete setting error:', error);
+        showMessage('Failed to delete item', 'error');
+    }
 };
+
+// Update loadTab to include settings
+const originalLoadTab = loadTab; // We can't easily hook into loadTab without modifying it directly.
+// Instead, I'll assume loadTab calls specific functions based on tab name.
+// Since I can't modify logic upstream easily, I'll rely on the tab click listener in initializeTabs()
+// But initializeTabs logic (lines 53-80 approx) assumes specific tabs.
+// I should update initializeTabs OR just hook into the click event of the new tab button manually 
+// if initializeTabs handles generic buttons.
+
 
 

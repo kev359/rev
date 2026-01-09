@@ -6,6 +6,7 @@ import authService from '../auth/auth.service.js';
 import learnersService from './learners.service.js';
 import routesService from '../routes/routes.service.js';
 import conflictChecker from './conflict.checker.js';
+import settingsService from '../settings/settings.service.js';
 import { 
   validateForm, 
   displayFormErrors, 
@@ -52,6 +53,9 @@ async function initializePage() {
     // Load routes
     allRoutes = await routesService.getAll('active');
     
+    // Load settings (grades/streams)
+    await loadDropdownSettings();
+
     // Load learners
     await loadLearners();
     
@@ -61,6 +65,29 @@ async function initializePage() {
     console.error('Initialize page error:', error);
     alert('Failed to load page data. Please refresh.');
   }
+}
+
+/**
+ * Load dropdown settings
+ */
+async function loadDropdownSettings() {
+    try {
+        const { grades, streams } = await settingsService.getAll();
+        const gradeSelect = document.getElementById('learnerGrade');
+        const streamSelect = document.getElementById('learnerStream');
+        
+        if(gradeSelect) {
+            gradeSelect.innerHTML = '<option value="">Select Grade</option>' + 
+                grades.map(g => `<option value="${sanitizeHTML(g.name)}">${sanitizeHTML(g.name)}</option>`).join('');
+        }
+        
+        if(streamSelect) {
+            streamSelect.innerHTML = '<option value="">None</option>' + 
+                streams.map(s => `<option value="${sanitizeHTML(s.name)}">${sanitizeHTML(s.name)}</option>`).join('');
+        }
+    } catch(e) { 
+        console.error('Failed to load dropdown settings', e); 
+    }
 }
 
 /**
@@ -327,7 +354,33 @@ async function loadLearnerData(learnerId) {
     document.getElementById('learnerId').value = learner.id;
     document.getElementById('learnerName').value = learner.name;
     document.getElementById('admissionNo').value = learner.admission_no;
-    document.getElementById('learnerClass').value = learner.class;
+    
+    // Parse Class and Stream
+    const fullClass = learner.class || '';
+    const gradeSelect = document.getElementById('learnerGrade');
+    let foundGrade = '';
+    
+    // Find matching grade prefix
+    if(gradeSelect) {
+        Array.from(gradeSelect.options).forEach(opt => {
+            if (opt.value && fullClass.startsWith(opt.value)) {
+                if (opt.value.length > foundGrade.length) {
+                    foundGrade = opt.value;
+                }
+            }
+        });
+        
+        if (foundGrade) {
+            gradeSelect.value = foundGrade;
+            const streamPart = fullClass.substring(foundGrade.length).trim();
+            const streamSelect = document.getElementById('learnerStream');
+            if(streamSelect) streamSelect.value = streamPart || "";
+        } else {
+            // If no match found, try to set it directly (maybe legacy data)
+             gradeSelect.value = ""; 
+        }
+    }
+
     document.getElementById('pickupTime').value = learner.pickup_time;
     document.getElementById('fatherPhone').value = learner.father_phone;
     document.getElementById('motherPhone').value = learner.mother_phone;
@@ -407,10 +460,13 @@ async function handleFormSubmit(e) {
   const formError = document.getElementById('formError');
 
   // Get form data
+  const grade = document.getElementById('learnerGrade').value;
+  const stream = document.getElementById('learnerStream').value;
+  
   const formData = {
     name: document.getElementById('learnerName').value.trim(),
     admission_no: document.getElementById('admissionNo').value.trim(),
-    class: document.getElementById('learnerClass').value.trim(),
+    class: stream ? `${grade} ${stream}` : grade,
     pickup_area: document.getElementById('pickupArea').value,
     pickup_time: document.getElementById('pickupTime').value,
     father_phone: formatPhoneNumber(document.getElementById('fatherPhone').value),

@@ -72,6 +72,7 @@
                 <button class="tab-btn" data-tab="minders">Minders</button>
                 <button class="tab-btn" data-tab="import">Import Data</button>
                 <button class="tab-btn" data-tab="rollover">Year-End Rollover</button>
+                <button class="tab-btn" data-tab="settings">Settings</button>
             </div>
 
             <!-- Routes Tab -->
@@ -334,6 +335,50 @@
                             </table>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab (School Configuration) -->
+            <div class="tab-content" id="settingsTab">
+                <div class="tab-header">
+                    <h2>School Configuration</h2>
+                    <p class="tab-description">Manage standard Grades/Classes and Streams for the school (CBC).</p>
+                </div>
+
+                <div class="settings-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                    
+                    <!-- Grades Configuration -->
+                    <div class="card p-4" style="padding: 1.5rem">
+                        <h3 style="margin-bottom: 1rem;">Grades / Classes</h3>
+                        <p class="text-secondary mb-4" style="margin-bottom: 1rem;">e.g. PP1, PP2, Grade 1... (These will appear in the dropdown)</p>
+                        
+                        <div class="input-group mb-4" style="display: flex; gap: 10px; margin-bottom: 1.5rem;">
+                            <input type="text" id="newGradeInput" placeholder="Enter Grade Name" style="flex:1;">
+                            <button class="btn btn-primary" id="addGradeBtn">Add</button>
+                        </div>
+
+                        <div class="tags-container" id="gradesList" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <!-- Populated by JS -->
+                            <span class="tag">Loading...</span>
+                        </div>
+                    </div>
+
+                    <!-- Streams Configuration -->
+                    <div class="card p-4" style="padding: 1.5rem">
+                        <h3 style="margin-bottom: 1rem;">Streams</h3>
+                        <p class="text-secondary mb-4" style="margin-bottom: 1rem;">e.g. Red, Blue, North... (Optional)</p>
+                        
+                        <div class="input-group mb-4" style="display: flex; gap: 10px; margin-bottom: 1.5rem;">
+                            <input type="text" id="newStreamInput" placeholder="Enter Stream Name" style="flex:1;">
+                            <button class="btn btn-primary" id="addStreamBtn">Add</button>
+                        </div>
+
+                        <div class="tags-container" id="streamsList" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <!-- Populated by JS -->
+                            <span class="tag">Loading...</span>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
