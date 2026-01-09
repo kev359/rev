@@ -462,21 +462,177 @@ window.editRoute = function(id) {
 };
 
 // ============================================
-// DRIVER & MINDER MODALS (Simplified)
+// DRIVER MODAL FUNCTIONALITY
 // ============================================
 
+let currentDriverId = null;
+
+// Add Driver Button
 document.getElementById('addDriverBtn')?.addEventListener('click', () => {
-  alert('Driver modal functionality coming soon. For now, please add drivers via Supabase SQL Editor.');
+  openDriverModal();
 });
+
+// Close Driver Modal
+document.getElementById('closeDriverModal')?.addEventListener('click', closeDriverModal);
+document.getElementById('cancelDriverBtn')?.addEventListener('click', closeDriverModal);
+
+// Driver Form Submit
+document.getElementById('driverForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  await saveDriver();
+});
+
+/**
+ * Open driver modal
+ */
+async function openDriverModal(driverId = null) {
+  const modal = document.getElementById('driverModal');
+  const form = document.getElementById('driverForm');
+  const title = document.getElementById('driverModalTitle');
+  const routeSelect = document.getElementById('driverRoute');
+  const passwordHint = document.getElementById('passwordHint');  // Note: HTML might not have this ID yet, verify
+  
+  if (!modal || !form) return;
+  
+  // Reset form
+  form.reset();
+  clearFormErrors(form);
+  currentDriverId = driverId;
+  
+  // Load routes into select
+  try {
+    const routes = await routesService.getAll('active');
+    routeSelect.innerHTML = '<option value="">Select route</option>' + 
+      routes.map(r => `<option value="${r.id}">${sanitizeHTML(r.name)}</option>`).join('');
+  } catch (error) {
+    console.error('Failed to load routes for dropdown:', error);
+  }
+
+  if (driverId) {
+    title.textContent = 'Edit Driver';
+    document.getElementById('driverPassword').removeAttribute('required');
+    if(passwordHint) passwordHint.textContent = 'Leave blank to keep existing password';
+    await loadDriverData(driverId);
+  } else {
+    title.textContent = 'Add Driver';
+    document.getElementById('driverPassword').setAttribute('required', 'required');
+    if(passwordHint) passwordHint.textContent = 'Required for new (min 6 chars)';
+  }
+  
+  modal.style.display = 'flex';
+}
+
+/**
+ * Close driver modal
+ */
+function closeDriverModal() {
+  const modal = document.getElementById('driverModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  currentDriverId = null;
+}
+
+/**
+ * Load driver data for editing
+ */
+async function loadDriverData(driverId) {
+  try {
+    const driver = await driversService.getById(driverId);
+    
+    document.getElementById('driverName').value = driver.name;
+    document.getElementById('driverEmail').value = driver.email;
+    document.getElementById('driverPhone').value = driver.phone;
+    document.getElementById('driverRoute').value = driver.route_id || '';
+    document.getElementById('driverRole').value = driver.role || 'driver';
+    
+    // Email is read-only for security/auth reasons usually, but let's allow edit if supported
+    // document.getElementById('driverEmail').readOnly = true; 
+  } catch (error) {
+    console.error('Load driver error:', error);
+    showMessage('Failed to load driver data', 'error');
+    closeDriverModal();
+  }
+}
+
+/**
+ * Save driver
+ */
+async function saveDriver() {
+  const form = document.getElementById('driverForm');
+  const submitBtn = document.getElementById('submitDriverBtn');
+  const errorDiv = document.getElementById('driverFormError');
+  
+  // Clear previous errors
+  clearFormErrors(form);
+  if(errorDiv) errorDiv.style.display = 'none';
+  
+  // Get form data
+  const formData = {
+    name: document.getElementById('driverName').value.trim(),
+    email: document.getElementById('driverEmail').value.trim(),
+    phone: document.getElementById('driverPhone').value.trim(),
+    route_id: document.getElementById('driverRoute').value || null,
+    role: document.getElementById('driverRole').value,
+    password: document.getElementById('driverPassword').value.trim()
+  };
+  
+  // Validate
+  if (!formData.name || !formData.email || !formData.phone) {
+    if(errorDiv) {
+        errorDiv.textContent = 'Please fill in all required fields';
+        errorDiv.style.display = 'block';
+    }
+    return;
+  }
+  
+  if (!currentDriverId && !formData.password) {
+     if(errorDiv) {
+        errorDiv.textContent = 'Password is required for new drivers';
+        errorDiv.style.display = 'block';
+    }
+    return;
+  }
+
+  setButtonLoading(submitBtn, true);
+  
+  try {
+    if (currentDriverId) {
+      if (!formData.password) delete formData.password; // Don't update if empty
+      await driversService.update(currentDriverId, formData);
+      showMessage('Driver updated successfully!', 'success');
+    } else {
+      await driversService.create(formData);
+      showMessage('Driver created successfully!', 'success');
+    }
+    
+    closeDriverModal();
+    await loadDrivers();
+  } catch (error) {
+    console.error('Save driver error:', error);
+    if(errorDiv) {
+        errorDiv.textContent = error.message || 'Failed to save driver';
+        errorDiv.style.display = 'block';
+    }
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+// Make functions globally accessible
+window.editDriver = function(id) {
+  openDriverModal(id);
+};
+
+// ============================================
+// MINDER MODAL (Placeholder for now)
+// ============================================
 
 document.getElementById('addMinderBtn')?.addEventListener('click', () => {
-  alert('Minder modal functionality coming soon. For now, please add minders via Supabase SQL Editor.');
+    alert('Minder modal functionality coming soon. For now, please add minders via Supabase SQL Editor.');
 });
-
-window.editDriver = function(id) {
-  alert('Driver editing coming soon.');
-};
-
+  
 window.editMinder = function(id) {
-  alert('Minder editing coming soon.');
+    alert('Minder editing coming soon.');
 };
+
