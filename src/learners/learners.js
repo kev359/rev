@@ -72,18 +72,35 @@ async function initializePage() {
  */
 async function loadDropdownSettings() {
     try {
-        const { grades, streams } = await settingsService.getAll();
+        const grades = await settingsService.getAllGrades();
         const gradeSelect = document.getElementById('learnerGrade');
         const streamSelect = document.getElementById('learnerStream');
         
         if(gradeSelect) {
             gradeSelect.innerHTML = '<option value="">Select Grade</option>' + 
-                grades.map(g => `<option value="${sanitizeHTML(g.name)}">${sanitizeHTML(g.name)}</option>`).join('');
+                grades.map(g => `<option value="${sanitizeHTML(g.name)}" data-grade-id="${g.id}">${sanitizeHTML(g.name)}</option>`).join('');
+            
+            // Add event listener to populate streams when grade is selected
+            gradeSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const gradeId = selectedOption.getAttribute('data-grade-id');
+                const selectedGrade = grades.find(g => g.id === gradeId);
+                
+                if (streamSelect && selectedGrade) {
+                    streamSelect.innerHTML = '<option value="">None</option>';
+                    if (selectedGrade.streams && selectedGrade.streams.length > 0) {
+                        streamSelect.innerHTML += selectedGrade.streams
+                            .map(s => `<option value="${sanitizeHTML(s.name)}">${sanitizeHTML(s.name)}</option>`)
+                            .join('');
+                    }
+                } else if (streamSelect) {
+                    streamSelect.innerHTML = '<option value="">None</option>';
+                }
+            });
         }
         
         if(streamSelect) {
-            streamSelect.innerHTML = '<option value="">None</option>' + 
-                streams.map(s => `<option value="${sanitizeHTML(s.name)}">${sanitizeHTML(s.name)}</option>`).join('');
+            streamSelect.innerHTML = '<option value="">None</option>';
         }
     } catch(e) { 
         console.error('Failed to load dropdown settings', e); 

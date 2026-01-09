@@ -97,8 +97,8 @@ async function loadTab(tab) {
     case 'rollover':
       await loadRolloverData();
       break;
-    case 'settings':
-      await loadSettings();
+    case 'grades':
+      await loadGrades();
       break;
   }
 }
@@ -821,141 +821,269 @@ window.editMinder = function(id) {
 };
 
 // ============================================
-// SETTINGS TAB LOGIC
+// GRADES TAB LOGIC
 // ============================================
 
-// Initialize settings listeners
-function setupSettingsListeners() {
-    const addGradeBtn = document.getElementById('addGradeBtn');
-    const addStreamBtn = document.getElementById('addStreamBtn');
-    
-    if (addGradeBtn) {
-        // Remove existing listeners to avoid duplicates if re-run (though simplified here)
-        // using onclick for simplicity or cleaner addEventListener with named function
-        addGradeBtn.onclick = () => addSetting('grade', 'newGradeInput');
-    }
-    
-    if (addStreamBtn) {
-        addStreamBtn.onclick = () => addSetting('stream', 'newStreamInput');
-    }
-}
+let currentGradeId = null;
+let currentGradeStreams = []; // Temporary array for streams being added
 
-// Call setup immediately if DOM ready, or could be called from init
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupSettingsListeners);
-} else {
-    setupSettingsListeners();
+/**
+ * Load grades table
+ */
+async function loadGrades() {
+  try {
+    const grades = await settingsService.getAllGrades();
+    const tableBody = document.getElementById('gradesTableBody');
+    
+    if (!tableBody) return;
+
+    if (grades.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="3" class="text-center">No grades found. Click "Add Grade" to create one.</td></tr>';
+      return;
+    }
+
+    tableBody.innerHTML = grades.map(grade => {
+      const streamsDisplay = grade.streams && grade.streams.length > 0
+        ? grade.streams.map(s => `<span style="display: inline-block; padding: 4px 8px; background: #e0e0e0; border-radius: 12px; margin: 2px; font-size: 12px; color: #000;">${sanitizeHTML(s.name)}</span>`).join('')
+        : '<span style="color: #999;">No streams</span>';
+      
+      const isDefault = grade.id && grade.id.startsWith('default-');
+      
+      return `
+        <tr>
+          <td>${sanitizeHTML(grade.name)}</td>
+          <td>${streamsDisplay}</td>
+          <td>
+            ${!isDefault ? `
+              <button class="action-btn edit" onclick="editGrade('${grade.id}')">Edit</button>
+              <button class="action-btn delete" onclick="deleteGrade('${grade.id}', '${sanitizeHTML(grade.name)}')">Delete</button>
+            ` : '<span style="color: #999;">Default</span>'}
+          </td>
+        </tr>
+      `;
+    }).join('');
+  } catch (error) {
+    console.error('Load grades error:', error);
+    showMessage('Failed to load grades', 'error');
+  }
 }
 
 /**
- * Load settings into UI
+ * Open grade/stream modal
  */
-async function loadSettings() {
-    console.log('Loading settings...'); // Debug
-    const gradesList = document.getElementById('gradesList');
-    const streamsList = document.getElementById('streamsList');
+function openGradeStreamModal(gradeId = null) {
+  const modal = document.getElementById('gradeStreamModal');
+  const modalTitle = document.getElementById('gradeStreamModalTitle');
+  const form = document.getElementById('gradeStreamForm');
+  const gradeNameInput = document.getElementById('gradeName');
+  const streamsContainer = document.getElementById('gradeStreamsContainer');
+  
+  if (!modal || !form) return;
 
-    
-    if (!gradesList || !streamsList) return;
+  currentGradeId = gradeId;
+  currentGradeStreams = [];
+  
+  form.reset();
+  streamsContainer.innerHTML = '';
+  document.getElementById('gradeFormError').style.display = 'none';
 
-    try {
-        const { grades, streams } = await settingsService.getAll();
-        
-        renderSettingsTags(gradesList, grades, 'grade');
-        renderSettingsTags(streamsList, streams, 'stream');
-    } catch (error) {
-        console.error('Load settings error:', error);
-        showMessage('Failed to load settings', 'error');
-    }
+  if (gradeId) {
+    modalTitle.textContent = 'Edit Grade';
+    loadGradeData(gradeId);
+  } else {
+    modalTitle.textContent = 'Add Grade';
+  }
+
+  modal.classList.add('active');
 }
 
 /**
- * Render tags for settings
+ * Close grade/stream modal
  */
-function renderSettingsTags(container, items, type) {
-    container.innerHTML = '';
-    
-    if (items.length === 0) {
-        container.innerHTML = '<span class="text-secondary">No items found.</span>';
-        return;
-    }
-
-    items.forEach(item => {
-        const tag = document.createElement('div');
-        tag.className = 'tag';
-        tag.style.display = 'inline-flex';
-        tag.style.alignItems = 'center';
-        tag.style.gap = '8px';
-        tag.style.padding = '8px 12px';
-        tag.style.backgroundColor = '#e0e0e0';
-        tag.style.borderRadius = '20px';
-        tag.style.border = '1px solid #999';
-        tag.style.color = '#000'; // Dark text for visibility
-        tag.style.fontSize = '14px';
-        tag.style.fontWeight = '500';
-        
-        tag.innerHTML = `
-            <span style="color: #000;">${sanitizeHTML(item.name)}</span>
-            ${item.id ? `<span class="delete-tag" style="cursor:pointer; color:#d32f2f; font-weight:bold; font-size:18px; line-height:1;" onclick="deleteSetting('${item.id}', '${type}')" title="Delete">&times;</span>` : ''}
-        `;
-        container.appendChild(tag);
-    });
+function closeGradeStreamModal() {
+  const modal = document.getElementById('gradeStreamModal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+  currentGradeId = null;
+  currentGradeStreams = [];
 }
 
 /**
- * Add a new setting
+ * Load grade data for editing
  */
-async function addSetting(type, inputId) {
-    const input = document.getElementById(inputId);
-    const name = input.value.trim();
+async function loadGradeData(gradeId) {
+  try {
+    const grades = await settingsService.getAllGrades();
+    const grade = grades.find(g => g.id === gradeId);
     
-    if (!name) return;
-    
-    // Optimistic UI update? No, let's wait for DB.
-    const btnId = type === 'grade' ? 'addGradeBtn' : 'addStreamBtn';
-    const btn = document.getElementById(btnId);
-    setButtonLoading(btn, true);
+    if (!grade) {
+      showMessage('Grade not found', 'error');
+      closeGradeStreamModal();
+      return;
+    }
 
-    try {
-        await settingsService.add(type, name);
-        input.value = '';
-        await loadSettings();
-        showMessage(`${type === 'grade' ? 'Grade' : 'Stream'} added successfully`, 'success');
-    } catch (error) {
-        console.error('Add setting error:', error);
-        if (error.code === '42P01') {
-            showMessage('Database table missing. Please ask developer to run SETTINGS_SETUP.sql', 'error');
-        } else {
-            showMessage('Failed to add item', 'error');
+    document.getElementById('gradeName').value = grade.name;
+    currentGradeStreams = grade.streams || [];
+    renderGradeStreams();
+  } catch (error) {
+    console.error('Load grade data error:', error);
+    showMessage('Failed to load grade data', 'error');
+  }
+}
+
+/**
+ * Add stream to current grade (in modal)
+ */
+function addStreamToGrade() {
+  const input = document.getElementById('gradeStreamsInput');
+  const streamName = input.value.trim();
+  
+  if (!streamName) return;
+  
+  // Check for duplicates
+  if (currentGradeStreams.some(s => s.name === streamName)) {
+    showMessage('Stream already added', 'error');
+    return;
+  }
+  
+  // Add to temporary array
+  currentGradeStreams.push({ name: streamName, isNew: true });
+  input.value = '';
+  renderGradeStreams();
+}
+
+/**
+ * Remove stream from current grade (in modal)
+ */
+function removeStreamFromGrade(index) {
+  currentGradeStreams.splice(index, 1);
+  renderGradeStreams();
+}
+
+/**
+ * Render streams in modal
+ */
+function renderGradeStreams() {
+  const container = document.getElementById('gradeStreamsContainer');
+  if (!container) return;
+
+  if (currentGradeStreams.length === 0) {
+    container.innerHTML = '<span style="color: #999;">No streams added yet</span>';
+    return;
+  }
+
+  container.innerHTML = currentGradeStreams.map((stream, index) => `
+    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; 
+                 background: #e0e0e0; border-radius: 16px; border: 1px solid #999; color: #000; font-size: 13px;">
+      ${sanitizeHTML(stream.name)}
+      <span onclick="removeStreamFromGrade(${index})" 
+            style="cursor: pointer; color: #d32f2f; font-weight: bold; font-size: 16px;" 
+            title="Remove">&times;</span>
+    </span>
+  `).join('');
+}
+
+/**
+ * Save grade with streams
+ */
+async function saveGradeStream(e) {
+  e.preventDefault();
+
+  const gradeName = document.getElementById('gradeName').value.trim();
+  const submitBtn = document.getElementById('submitGradeStreamBtn');
+  const errorDiv = document.getElementById('gradeFormError');
+
+  if (!gradeName) {
+    errorDiv.textContent = 'Grade name is required';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  setButtonLoading(submitBtn, true);
+  errorDiv.style.display = 'none';
+
+  try {
+    if (currentGradeId) {
+      // Update existing grade
+      await settingsService.update(currentGradeId, { name: gradeName });
+      
+      // Handle streams: delete removed, add new
+      const grades = await settingsService.getAllGrades();
+      const existingGrade = grades.find(g => g.id === currentGradeId);
+      const existingStreams = existingGrade?.streams || [];
+      
+      // Delete streams not in currentGradeStreams
+      for (const existingStream of existingStreams) {
+        if (!currentGradeStreams.some(s => s.id === existingStream.id)) {
+          await settingsService.deleteStream(existingStream.id);
         }
-    } finally {
-        setButtonLoading(btn, false);
+      }
+      
+      // Add new streams
+      for (const stream of currentGradeStreams) {
+        if (stream.isNew) {
+          await settingsService.addStream(currentGradeId, stream.name);
+        }
+      }
+      
+      showMessage('Grade updated successfully', 'success');
+    } else {
+      // Create new grade with streams
+      const streamNames = currentGradeStreams.map(s => s.name);
+      await settingsService.addGrade(gradeName, streamNames);
+      showMessage('Grade added successfully', 'success');
     }
+
+    await loadGrades();
+    closeGradeStreamModal();
+  } catch (error) {
+    console.error('Save grade error:', error);
+    if (error.code === '42P01') {
+      errorDiv.textContent = 'Database table missing. Please run SETTINGS_SETUP_V2.sql';
+    } else {
+      errorDiv.textContent = error.message || 'Failed to save grade';
+    }
+    errorDiv.style.display = 'block';
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
 }
 
 /**
- * Delete a setting
+ * Delete grade
  */
-window.deleteSetting = async function(id, type) {
-    if (!confirm('Are you sure you want to delete this?')) return;
-    
-    try {
-        await settingsService.delete(id);
-        await loadSettings();
-        showMessage('Item deleted', 'success');
-    } catch (error) {
-        console.error('Delete setting error:', error);
-        showMessage('Failed to delete item', 'error');
-    }
+window.deleteGrade = async function(gradeId, gradeName) {
+  if (!confirm(`Are you sure you want to delete "${gradeName}" and all its streams?`)) return;
+
+  try {
+    await settingsService.delete(gradeId);
+    await loadGrades();
+    showMessage('Grade deleted successfully', 'success');
+  } catch (error) {
+    console.error('Delete grade error:', error);
+    showMessage('Failed to delete grade', 'error');
+  }
 };
 
-// Update loadTab to include settings
-const originalLoadTab = loadTab; // We can't easily hook into loadTab without modifying it directly.
-// Instead, I'll assume loadTab calls specific functions based on tab name.
-// Since I can't modify logic upstream easily, I'll rely on the tab click listener in initializeTabs()
-// But initializeTabs logic (lines 53-80 approx) assumes specific tabs.
-// I should update initializeTabs OR just hook into the click event of the new tab button manually 
-// if initializeTabs handles generic buttons.
+/**
+ * Edit grade
+ */
+window.editGrade = function(gradeId) {
+  openGradeStreamModal(gradeId);
+};
+
+// Make removeStreamFromGrade globally accessible
+window.removeStreamFromGrade = removeStreamFromGrade;
+
+// Setup event listeners for Grades tab
+document.getElementById('addGradeStreamBtn')?.addEventListener('click', () => openGradeStreamModal());
+document.getElementById('closeGradeStreamModal')?.addEventListener('click', closeGradeStreamModal);
+document.getElementById('cancelGradeStreamBtn')?.addEventListener('click', closeGradeStreamModal);
+document.getElementById('gradeStreamForm')?.addEventListener('submit', saveGradeStream);
+document.getElementById('addStreamToGradeBtn')?.addEventListener('click', addStreamToGrade);
+
+
 
 
 
