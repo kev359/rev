@@ -625,14 +625,196 @@ window.editDriver = function(id) {
 };
 
 // ============================================
-// MINDER MODAL (Placeholder for now)
+// MINDER MODAL FUNCTIONALITY
 // ============================================
 
+let currentMinderId = null;
+let cachedDrivers = []; // Store drivers to lookup route info
+
+// Add Minder Button
 document.getElementById('addMinderBtn')?.addEventListener('click', () => {
-    alert('Minder modal functionality coming soon. For now, please add minders via Supabase SQL Editor.');
+    openMinderModal();
 });
+
+// Close Minder Modal
+document.getElementById('closeMinderModal')?.addEventListener('click', closeMinderModal);
+document.getElementById('cancelMinderBtn')?.addEventListener('click', closeMinderModal);
+
+// Minder Form Submit
+document.getElementById('minderForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  await saveMinder();
+});
+
+// Auto-assign route when driver is selected
+document.getElementById('minderDriver')?.addEventListener('change', (e) => {
+    const driverId = e.target.value;
+    const routeSelect = document.getElementById('minderRoute');
+    
+    if (!driverId) {
+        routeSelect.value = "";
+        return;
+    }
+
+    const driver = cachedDrivers.find(d => d.id === driverId);
+    if (driver && driver.route_id) {
+        routeSelect.value = driver.route_id;
+    } else {
+        routeSelect.value = ""; // Or handle case where driver has no route
+    }
+});
+
+/**
+ * Open minder modal
+ */
+async function openMinderModal(minderId = null) {
+  const modal = document.getElementById('minderModal');
+  const form = document.getElementById('minderForm');
+  const title = document.getElementById('minderModalTitle');
+  const driverSelect = document.getElementById('minderDriver');
+  const routeSelect = document.getElementById('minderRoute');
   
+  if (!modal || !form) return;
+  
+  // Reset form
+  form.reset();
+  currentMinderId = minderId;
+  const errorDiv = document.getElementById('minderFormError');
+  if(errorDiv) errorDiv.style.display = 'none';
+  
+  // Load drivers and routes
+  try {
+    const [drivers, routes] = await Promise.all([
+        driversService.getAll(),
+        routesService.getAll('active')
+    ]);
+    cachedDrivers = drivers; // Cache for route lookup
+
+    driverSelect.innerHTML = '<option value="">Select driver</option>' + 
+      drivers.map(d => `<option value="${d.id}">${sanitizeHTML(d.name)}</option>`).join('');
+      
+    routeSelect.innerHTML = '<option value="">Select route</option>' + 
+      routes.map(r => `<option value="${r.id}">${sanitizeHTML(r.name)}</option>`).join('');
+
+  } catch (error) {
+    console.error('Failed to load dropdown data:', error);
+    showMessage('Failed to load form data', 'error');
+  }
+
+  if (minderId) {
+    title.textContent = 'Edit Minder';
+    await loadMinderData(minderId);
+  } else {
+    title.textContent = 'Add Minder';
+  }
+  
+  modal.style.display = 'flex';
+}
+
+/**
+ * Close minder modal
+ */
+function closeMinderModal() {
+  const modal = document.getElementById('minderModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  currentMinderId = null;
+}
+
+/**
+ * Load minder data for editing
+ */
+async function loadMinderData(minderId) {
+  try {
+    const minder = await mindersService.getById(minderId);
+    
+    document.getElementById('minderName').value = minder.name;
+    document.getElementById('minderPhone').value = minder.phone;
+    
+    // Set driver and trigger change event to set route
+    const driverSelect = document.getElementById('minderDriver');
+    driverSelect.value = minder.driver_id || '';
+    
+    // Manually set route in case trigger doesn't work or we want exact value from DB
+    // But usually syncing with driver is better.
+    // Let's manually set route just in case
+    const routeSelect = document.getElementById('minderRoute');
+    // Find driver to get route_id
+    const driver = cachedDrivers.find(d => d.id === minder.driver_id);
+    if(driver && driver.route_id) {
+         routeSelect.value = driver.route_id;
+    }
+
+  } catch (error) {
+    console.error('Load minder error:', error);
+    showMessage('Failed to load minder data', 'error');
+    closeMinderModal();
+  }
+}
+
+/**
+ * Save minder
+ */
+async function saveMinder() {
+  const form = document.getElementById('minderForm');
+  const submitBtn = document.getElementById('submitMinderBtn');
+  const errorDiv = document.getElementById('minderFormError');
+  
+  // Clear previous errors
+  if(errorDiv) errorDiv.style.display = 'none';
+  
+  // Get form data
+  // Note: route_id is derived from the driver, but passing it might be useful or redundancy. 
+  // The service/DB takes driver_id. Does it take route_id? 
+  // Let's check schema/service. Usually minder is linked to driver, and gets route via driver?
+  // Or minder table has route_id? 
+  // The HTML shows a route select.
+  // Assuming mindersService handles it. Let's send what we have.
+  
+  const formData = {
+    name: document.getElementById('minderName').value.trim(),
+    phone: document.getElementById('minderPhone').value.trim(),
+    driver_id: document.getElementById('minderDriver').value,
+    route_id: document.getElementById('minderRoute').value // If schema requires it
+  };
+  
+  // Validate
+  if (!formData.name || !formData.phone || !formData.driver_id) {
+    if(errorDiv) {
+        errorDiv.textContent = 'Please fill in all required fields';
+        errorDiv.style.display = 'block';
+    }
+    return;
+  }
+
+  setButtonLoading(submitBtn, true);
+  
+  try {
+    if (currentMinderId) {
+      await mindersService.update(currentMinderId, formData);
+      showMessage('Minder updated successfully!', 'success');
+    } else {
+      await mindersService.create(formData);
+      showMessage('Minder created successfully!', 'success');
+    }
+    
+    closeMinderModal();
+    await loadMinders();
+  } catch (error) {
+    console.error('Save minder error:', error);
+    if(errorDiv) {
+        errorDiv.textContent = error.message || 'Failed to save minder';
+        errorDiv.style.display = 'block';
+    }
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+// Make functions globally accessible
 window.editMinder = function(id) {
-    alert('Minder editing coming soon.');
+  openMinderModal(id);
 };
+
 
