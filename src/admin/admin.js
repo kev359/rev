@@ -875,10 +875,6 @@ async function loadSettings() {
 function renderSettingsTags(container, items, type) {
     container.innerHTML = '';
     
-    // If items have IDs, it means they are from DB and consistent.
-    // If items are defaults (no ID), we just show them but maybe disable delete?
-    // The service might return defaults with fake IDs or no IDs.
-    
     if (items.length === 0) {
         container.innerHTML = '<span class="text-secondary">No items found.</span>';
         return;
@@ -890,14 +886,17 @@ function renderSettingsTags(container, items, type) {
         tag.style.display = 'inline-flex';
         tag.style.alignItems = 'center';
         tag.style.gap = '8px';
-        tag.style.padding = '5px 10px';
-        tag.style.backgroundColor = '#f0f0f0';
+        tag.style.padding = '8px 12px';
+        tag.style.backgroundColor = '#e0e0e0';
         tag.style.borderRadius = '20px';
-        tag.style.border = '1px solid #ddd';
+        tag.style.border = '1px solid #999';
+        tag.style.color = '#000'; // Dark text for visibility
+        tag.style.fontSize = '14px';
+        tag.style.fontWeight = '500';
         
         tag.innerHTML = `
-            <span>${sanitizeHTML(item.name)}</span>
-            ${item.id ? `<span class="delete-tag" style="cursor:pointer; color:red; font-weight:bold;" onclick="deleteSetting('${item.id}', '${type}')">&times;</span>` : ''}
+            <span style="color: #000;">${sanitizeHTML(item.name)}</span>
+            ${item.id ? `<span class="delete-tag" style="cursor:pointer; color:#d32f2f; font-weight:bold; font-size:18px; line-height:1;" onclick="deleteSetting('${item.id}', '${type}')" title="Delete">&times;</span>` : ''}
         `;
         container.appendChild(tag);
     });
