@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import config from '../config.js';
 
-const supabase = createClient(config.supabaseUrl, config.supabaseAnonKey);
+const supabase = createClient(config.supabaseConfig.url, config.supabaseConfig.anonKey);
 
 const TABLE_NAME = 'school_config';
 
