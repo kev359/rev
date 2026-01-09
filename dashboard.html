@@ -36,8 +36,8 @@
                 </div>
             </header>
 
-            <!-- Stats Cards -->
-            <div class="stats-grid">
+            <!-- Driver Stats Cards (Default) -->
+            <div class="stats-grid" id="driverStats">
                 <div class="stat-card">
                     <div class="stat-icon">👥</div>
                     <div class="stat-content">
@@ -67,6 +67,41 @@
                     <div class="stat-content">
                         <h3 id="totalAreas">0</h3>
                         <p>Pickup Areas</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Stats Cards (Hidden by default) -->
+            <div class="stats-grid" id="adminStats" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-icon">🚌</div>
+                    <div class="stat-content">
+                        <h3 id="adminTotalRoutes">0</h3>
+                        <p>Total Routes</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">👨‍✈️</div>
+                    <div class="stat-content">
+                        <h3 id="adminTotalDrivers">0</h3>
+                        <p>Total Drivers</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">👩‍🏫</div>
+                    <div class="stat-content">
+                        <h3 id="adminTotalMinders">0</h3>
+                        <p>Total Minders</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <h3 id="adminTotalLearners">0</h3>
+                        <p>Total Learners</p>
                     </div>
                 </div>
             </div>

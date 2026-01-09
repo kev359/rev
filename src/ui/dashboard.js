@@ -5,6 +5,8 @@
 import authService from '../auth/auth.service.js';
 import learnersService from '../learners/learners.service.js';
 import routesService from '../routes/routes.service.js';
+import driversService from '../drivers/drivers.service.js';
+import mindersService from '../minders/minders.service.js';
 import { setLoadingState, formatDate } from '../utils/helpers.js';
 
 // Wait for DOM to load
@@ -24,6 +26,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   const userNameEl = document.getElementById('userName');
   if (userNameEl) {
     userNameEl.textContent = driver.name;
+    
+    // Add (Admin) label if admin
+    if (driver.role === 'admin') {
+      const roleSpan = document.createElement('span');
+      roleSpan.className = 'role-badge admin';
+      roleSpan.textContent = 'ADMIN';
+      roleSpan.style.marginLeft = '10px';
+      userNameEl.appendChild(roleSpan);
+    }
   }
 
   // Load dashboard data
@@ -46,10 +57,39 @@ async function loadDashboardData(driver) {
   try {
     // Show loading state
     const loadingState = document.getElementById('loadingState');
-    const contentState = document.querySelector('.stats-grid');
+    const driverStats = document.getElementById('driverStats');
+    const adminStats = document.getElementById('adminStats');
     
-    if (loadingState && contentState) {
-      setLoadingState(loadingState, contentState, true);
+    // Handle admin view
+    if (driver.role === 'admin') {
+      // Toggle visibility
+      if (driverStats) driverStats.style.display = 'none';
+      if (adminStats) adminStats.style.display = 'grid';
+      
+      // Fetch system-wide stats
+      const [routes, driversList, minders, learners] = await Promise.all([
+        routesService.getAll(),
+        driversService.getAll(),
+        mindersService.getAll(),
+        learnersService.getAll()
+      ]);
+
+      document.getElementById('adminTotalRoutes').textContent = routes.length || 0;
+      document.getElementById('adminTotalDrivers').textContent = driversList.length || 0;
+      document.getElementById('adminTotalMinders').textContent = minders.length || 0;
+      document.getElementById('adminTotalLearners').textContent = learners.length || 0;
+      
+      // Load recent activity
+      await loadRecentActivity();
+      return; 
+    }
+
+    // Handle normal driver view (Default)
+    if (driverStats) driverStats.style.display = 'grid';
+    if (adminStats) adminStats.style.display = 'none';
+
+    if (loadingState && driverStats) {
+      setLoadingState(loadingState, driverStats, true);
     }
 
     // Get route information
@@ -79,14 +119,9 @@ async function loadDashboardData(driver) {
       totalAreas: areaCount,
     });
 
-    // Load recent activity if admin
-    if (driver.role === 'admin') {
-      await loadRecentActivity();
-    }
-
     // Hide loading state
-    if (loadingState && contentState) {
-      setLoadingState(loadingState, contentState, false);
+    if (loadingState && driverStats) {
+      setLoadingState(loadingState, driverStats, false);
     }
   } catch (error) {
     console.error('Load dashboard data error:', error);
