@@ -67,9 +67,10 @@
 
             <!-- Admin Tabs -->
             <div class="admin-tabs">
-                <button class="tab-btn active" data-tab="routes">Routes</button>
+                <button class="tab-btn" data-tab="routes">Routes</button>
                 <button class="tab-btn" data-tab="drivers">Drivers</button>
                 <button class="tab-btn" data-tab="minders">Minders</button>
+                <button class="tab-btn" data-tab="grades">Grades</button>
                 <button class="tab-btn" data-tab="import">Import Data</button>
                 <button class="tab-btn" data-tab="rollover">Year-End Rollover</button>
                 <button class="tab-btn" data-tab="settings">Settings</button>
@@ -156,6 +157,32 @@
                             </tr>
                         </thead>
                         <tbody id="mindersTableBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Grades Tab -->
+            <div class="tab-content" id="gradesTab">
+                <div class="tab-header">
+                    <h2>Manage Grades & Streams</h2>
+                    <button class="btn btn-primary" id="addGradeStreamBtn">
+                        <span class="icon">➕</span>
+                        Add Grade
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Grade/Class Name</th>
+                                <th>Streams</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gradesTableBody">
                             <!-- Populated by JavaScript -->
                         </tbody>
                     </table>
@@ -614,6 +641,60 @@
                     <button type="button" class="btn btn-secondary" id="cancelMinderBtn">Cancel</button>
                     <button type="submit" class="btn btn-primary" id="submitMinderBtn">
                         <span class="btn-text">Save Minder</span>
+                        <span class="btn-loader" style="display: none;">
+                            <span class="spinner"></span>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Grade/Stream Modal -->
+    <div id="gradeStreamModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="gradeStreamModalTitle">Add Grade</h2>
+                <button class="modal-close" id="closeGradeStreamModal">&times;</button>
+            </div>
+            <form id="gradeStreamForm" class="modal-form">
+                <input type="hidden" id="gradeId" name="gradeId">
+                
+                <div class="form-group">
+                    <label for="gradeName">Grade/Class Name <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="gradeName" 
+                        name="gradeName" 
+                        required 
+                        placeholder="e.g., PP1, Grade 1, Grade 2"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="gradeStreamsInput">Streams (Optional)</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <input 
+                            type="text" 
+                            id="gradeStreamsInput" 
+                            placeholder="Enter stream name (e.g., Red, Blue)"
+                            style="flex: 1;"
+                        >
+                        <button type="button" class="btn btn-secondary" id="addStreamToGradeBtn">Add Stream</button>
+                    </div>
+                    <small class="form-hint">Add streams one by one. They will appear below.</small>
+                    
+                    <div id="gradeStreamsContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div id="gradeFormError" class="error-message" style="display: none;"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelGradeStreamBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitGradeStreamBtn">
+                        <span class="btn-text">Save Grade</span>
                         <span class="btn-loader" style="display: none;">
                             <span class="spinner"></span>
                         </span>
