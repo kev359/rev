@@ -816,20 +816,45 @@ async function saveMinder() {
   }
 }
 
-// Make functions globally accessible
+window.editMinder = function(id) {
+  openMinderModal(id);
+};
+
 // ============================================
 // SETTINGS TAB LOGIC
 // ============================================
 
-document.getElementById('addGradeBtn')?.addEventListener('click', () => addSetting('grade', 'newGradeInput'));
-document.getElementById('addStreamBtn')?.addEventListener('click', () => addSetting('stream', 'newStreamInput'));
+// Initialize settings listeners
+function setupSettingsListeners() {
+    const addGradeBtn = document.getElementById('addGradeBtn');
+    const addStreamBtn = document.getElementById('addStreamBtn');
+    
+    if (addGradeBtn) {
+        // Remove existing listeners to avoid duplicates if re-run (though simplified here)
+        // using onclick for simplicity or cleaner addEventListener with named function
+        addGradeBtn.onclick = () => addSetting('grade', 'newGradeInput');
+    }
+    
+    if (addStreamBtn) {
+        addStreamBtn.onclick = () => addSetting('stream', 'newStreamInput');
+    }
+}
+
+// Call setup immediately if DOM ready, or could be called from init
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupSettingsListeners);
+} else {
+    setupSettingsListeners();
+}
 
 /**
  * Load settings into UI
  */
 async function loadSettings() {
+    console.log('Loading settings...'); // Debug
     const gradesList = document.getElementById('gradesList');
     const streamsList = document.getElementById('streamsList');
+
     
     if (!gradesList || !streamsList) return;
 
