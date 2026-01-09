@@ -1023,6 +1023,7 @@ async function saveGradeStream(e) {
       // Add new streams
       for (const stream of currentGradeStreams) {
         if (stream.isNew) {
+          console.log(`Adding new stream: ${stream.name} to parent: ${currentGradeId}`);
           await settingsService.addStream(currentGradeId, stream.name);
         }
       }
