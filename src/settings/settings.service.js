@@ -74,13 +74,13 @@ const settingsService = {
   async addGrade(name, streamNames = []) {
     try {
       // Insert the grade
-      const { data: grade, error: gradeError } = await supabase
+      const { data: grades, error: gradeError } = await supabase
         .from(TABLE_NAME)
         .insert([{ type: 'grade', name, parent_id: null }])
-        .select()
-        .single();
+        .select();
 
       if (gradeError) throw gradeError;
+      const grade = grades[0];
 
       // Insert streams if provided
       if (streamNames.length > 0) {
@@ -117,11 +117,10 @@ const settingsService = {
     const { data, error } = await supabase
       .from(TABLE_NAME)
       .insert([{ type: 'stream', name: streamName, parent_id: gradeId }])
-      .select()
-      .single();
+      .select();
 
     if (error) throw error;
-    return data;
+    return data[0];
   },
 
   /**
@@ -135,11 +134,10 @@ const settingsService = {
       .from(TABLE_NAME)
       .update(updates)
       .eq('id', id)
-      .select()
-      .single();
+      .select();
 
     if (error) throw error;
-    return data;
+    return data ? data[0] : null;
   },
 
   /**
