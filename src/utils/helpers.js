@@ -91,18 +91,30 @@ export function setButtonLoading(button, loading) {
  * @param {HTMLElement} container - Container element
  */
 export function showMessage(message, type = 'info', container) {
-  if (!container) return;
+  // If no container provided, use or create global toast container
+  if (!container) {
+    container = document.getElementById('globalMessageContainer');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'globalMessageContainer';
+      document.body.appendChild(container);
+    }
+    container.classList.add('toast-container');
+  }
 
   // Clear previous messages
   container.innerHTML = '';
   container.style.display = 'block';
 
   // Set message class
-  container.className = `${type}-message`;
+  container.className = container.id === 'globalMessageContainer' 
+    ? `toast-container ${type}-toast` 
+    : `${type}-message`;
+    
   container.textContent = message;
 
   // Auto-hide success messages after 5 seconds
-  if (type === 'success') {
+  if (type === 'success' || container.id === 'globalMessageContainer') {
     setTimeout(() => {
       container.style.display = 'none';
     }, 5000);

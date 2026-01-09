@@ -93,10 +93,13 @@ async function loadRoutes() {
       <tr>
         <td>${sanitizeHTML(route.name)}</td>
         <td>${sanitizeHTML(route.vehicle_no)}</td>
-        <td>${route.areas?.length || 0}</td>
-        <td>${route.term}, ${route.year}</td>
+        <td>${sanitizeHTML(route.term)}</td>
+        <td>${route.year}</td>
         <td>
           <span class="status-badge ${route.status}">${route.status}</span>
+        </td>
+        <td class="text-center">
+          ${route.learners_count || 0}
         </td>
         <td>
           <div class="action-buttons">
