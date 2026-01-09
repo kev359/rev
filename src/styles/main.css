@@ -225,7 +225,7 @@ textarea {
   padding: var(--input-padding-y) var(--input-padding-x);
   font-size: var(--font-size-base);
   font-family: var(--font-family-primary);
-  color: var(--color-text-primary);
+  color: #000000; /* Force black text */
   background-color: var(--color-white);
   border: var(--input-border-width) solid var(--input-border-color);
   border-radius: var(--input-border-radius);
@@ -242,7 +242,7 @@ textarea:focus {
 
 input::placeholder,
 textarea::placeholder {
-  color: #888888; /* Darker placeholder for better visibility */
+  color: #555555; /* Even darker placeholder */
   opacity: 1;
 }
 
