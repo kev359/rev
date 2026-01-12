@@ -298,3 +298,102 @@
     font-size: 2rem;
   }
 }
+
+/* ============================================
+   AREAS MANAGEMENT STYLES
+   ============================================ */
+
+.areas-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md) 0;
+}
+
+.area-route-card {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.area-route-card .route-header {
+    background-color: var(--color-background);
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.area-route-card .route-header h3 {
+    margin: 0;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-secondary);
+}
+
+.area-route-card .route-body {
+    padding: var(--spacing-md);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.areas-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+    flex-grow: 1;
+}
+
+.area-chip {
+    background-color: var(--color-info-bg);
+    color: var(--color-info);
+    border: 1px solid var(--color-info);
+    padding: 4px 8px;
+    border-radius: 16px;
+    font-size: var(--font-size-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.remove-area-btn {
+    background: none;
+    border: none;
+    color: var(--color-info);
+    cursor: pointer;
+    padding: 0;
+    font-size: 16px;
+    line-height: 1;
+    opacity: 0.7;
+}
+
+.remove-area-btn:hover {
+    opacity: 1;
+    color: var(--color-error);
+}
+
+.add-area-group {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin-top: auto;
+}
+
+.add-area-group .form-input {
+    flex-grow: 1;
+    padding: 6px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+}
+
+.add-area-group .btn {
+    padding: 6px 12px;
+}

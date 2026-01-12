@@ -100,6 +100,9 @@ async function loadTab(tab) {
     case 'grades':
       await loadGrades();
       break;
+    case 'areas':
+      await loadAreas();
+      break;
   }
 }
 
@@ -1078,3 +1081,114 @@ document.getElementById('addStreamToGradeBtn')?.addEventListener('click', addStr
 
 
 
+
+/**
+ * Load Areas Management
+ */
+async function loadAreas() {
+    const container = document.getElementById('areasContainer');
+    if (!container) return;
+
+    container.innerHTML = '<div class="loading-state"><span class="spinner"></span><p>Loading areas...</p></div>';
+
+    try {
+        const routes = await routesService.getAll();
+        
+        if (routes.length === 0) {
+             container.innerHTML = `
+                <div class="empty-state">
+                    <h3>No Routes Found</h3>
+                    <p>You must add routes first before defining areas.</p>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = routes.map(route => `
+            <div class="area-route-card">
+                <div class="route-header">
+                    <h3>${sanitizeHTML(route.name)}</h3>
+                    <span class="badge">${(route.areas || []).length} Areas</span>
+                </div>
+                <div class="route-body">
+                    <div class="areas-list">
+                        ${(route.areas || []).length > 0 ? (route.areas || []).map(area => `
+                            <span class="area-chip">
+                                ${sanitizeHTML(area)}
+                                <button onclick="removeArea('${route.id}', '${sanitizeHTML(area.replace(/'/g, "\\'"))}')" class="remove-area-btn" title="Remove">&times;</button>
+                            </span>
+                        `).join('') : '<p class="text-muted">No areas defined</p>'}
+                    </div>
+                    <div class="add-area-group">
+                        <input type="text" id="newAreaInput-${route.id}" class="form-input" placeholder="Add new area..." onkeypress="handleAreaKeypress(event, '${route.id}')">
+                        <button onclick="addArea('${route.id}')" class="btn btn-sm btn-secondary">Add</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error('Load areas error:', error);
+        container.innerHTML = '<div class="error-message">Failed to load areas</div>';
+    }
+}
+
+/**
+ * Add area to route
+ */
+window.addArea = async function(routeId) {
+    const input = document.getElementById(`newAreaInput-${routeId}`);
+    if (!input) return;
+    
+    const areaName = input.value.trim();
+    if (!areaName) return;
+    
+    try {
+        const route = await routesService.getById(routeId);
+        const currentAreas = route.areas || [];
+        
+        // Case insensitive check
+        if (currentAreas.some(a => a.toLowerCase() === areaName.toLowerCase())) {
+            alert('Area already exists in this route');
+            return;
+        }
+        
+        await routesService.update(routeId, {
+            areas: [...currentAreas, areaName]
+        });
+        
+        input.value = '';
+        await loadAreas(); 
+    } catch (error) {
+        console.error('Add area error:', error);
+        alert('Failed to add area');
+    }
+};
+
+window.handleAreaKeypress = function(event, routeId) {
+    if (event.key === 'Enter') {
+        window.addArea(routeId);
+    }
+}
+
+/**
+ * Remove area from route
+ */
+window.removeArea = async function(routeId, areaName) {
+    if (!confirm(`Remove "${areaName}" from this route?`)) return;
+    
+    try {
+        const route = await routesService.getById(routeId);
+        const currentAreas = route.areas || [];
+        
+        const newAreas = currentAreas.filter(a => a !== areaName);
+        
+        await routesService.update(routeId, {
+            areas: newAreas
+        });
+        
+        await loadAreas();
+    } catch (error) {
+         console.error('Remove area error:', error);
+         alert('Failed to remove area');
+    }
+};

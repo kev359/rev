@@ -407,6 +407,8 @@ async function loadLearnerData(learnerId) {
     // Load areas for route
     await loadAreasForRoute(learner.route_id);
     document.getElementById('pickupArea').value = learner.pickup_area;
+    if(document.getElementById('dropoffArea')) document.getElementById('dropoffArea').value = learner.dropoff_area || '';
+    if(document.getElementById('dropTime')) document.getElementById('dropTime').value = learner.drop_time || '';
   } catch (error) {
     console.error('Load learner data error:', error);
     alert('Failed to load learner data.');
@@ -418,14 +420,19 @@ async function loadLearnerData(learnerId) {
  */
 async function loadAreasForRoute(routeId) {
   const pickupArea = document.getElementById('pickupArea');
-  if (!pickupArea || !routeId) return;
+  const dropoffArea = document.getElementById('dropoffArea');
+  
+  if (!routeId) return;
 
   try {
     const route = await routesService.getById(routeId);
     const areas = route.areas || [];
     
-    pickupArea.innerHTML = '<option value="">Select area</option>' +
+    const options = '<option value="">Select area</option>' +
       areas.map(area => `<option value="${area}">${sanitizeHTML(area)}</option>`).join('');
+
+    if (pickupArea) pickupArea.innerHTML = options;
+    if (dropoffArea) dropoffArea.innerHTML = options;
   } catch (error) {
     console.error('Load areas error:', error);
   }
@@ -486,6 +493,8 @@ async function handleFormSubmit(e) {
     class: stream ? `${grade} ${stream}` : grade,
     pickup_area: document.getElementById('pickupArea').value,
     pickup_time: document.getElementById('pickupTime').value,
+    dropoff_area: document.getElementById('dropoffArea').value,
+    drop_time: document.getElementById('dropTime').value,
     father_phone: formatPhoneNumber(document.getElementById('fatherPhone').value),
     mother_phone: formatPhoneNumber(document.getElementById('motherPhone').value),
     route_id: document.getElementById('routeSelect').value,
@@ -502,6 +511,8 @@ async function handleFormSubmit(e) {
     class: { required: true, label: 'Class' },
     pickup_area: { required: true, label: 'Pickup Area' },
     pickup_time: { required: true, type: 'time', label: 'Pickup Time' },
+    dropoff_area: { required: true, label: 'Dropoff Area' },
+    drop_time: { required: true, type: 'time', label: 'Dropoff Time' },
     father_phone: { required: true, type: 'phone', label: 'Father Phone' },
     mother_phone: { required: true, type: 'phone', label: 'Mother Phone' },
     route_id: { required: true, label: 'Route' },

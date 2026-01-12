@@ -68,11 +68,24 @@
             <!-- Admin Tabs -->
             <div class="admin-tabs">
                 <button class="tab-btn" data-tab="routes">Routes</button>
+                <button class="tab-btn" data-tab="areas">Areas</button>
                 <button class="tab-btn" data-tab="drivers">Drivers</button>
                 <button class="tab-btn" data-tab="minders">Minders</button>
                 <button class="tab-btn" data-tab="grades">Grades</button>
                 <button class="tab-btn" data-tab="import">Import Data</button>
                 <button class="tab-btn" data-tab="rollover">Year-End Rollover</button>
+            </div>
+
+            <!-- Areas Tab -->
+            <div class="tab-content" id="areasTab">
+                <div class="tab-header">
+                    <h2>Manage Areas</h2>
+                    <!-- No Add Area button here because areas belong to routes -->
+                    <p class="text-muted">Manage areas for each route below</p>
+                </div>
+                <div class="areas-container" id="areasContainer">
+                    <!-- Populated by JS -->
+                </div>
             </div>
 
             <!-- Routes Tab -->
