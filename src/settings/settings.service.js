@@ -31,6 +31,10 @@ const settingsService = {
       const grades = data.filter(item => item.type === 'grade');
       const streams = data.filter(item => item.type === 'stream');
 
+      console.log('DEBUG: Fetched Grades:', grades);
+      console.log('DEBUG: Fetched Streams:', streams);
+      console.log('DEBUG: First Stream Parent ID:', streams[0]?.parent_id);
+
       // Attach streams to their parent grades
       return grades.map(grade => ({
         ...grade,
