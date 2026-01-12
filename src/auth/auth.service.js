@@ -48,6 +48,30 @@ class AuthService {
   }
 
   /**
+   * Sign up new user
+   * @param {string} email - User email
+   * @param {string} password - User password
+   * @returns {Promise<Object>} - { success, data, error }
+   */
+  async signUp(email, password) {
+    try {
+      const { data, error } = await this.supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, data };
+    } catch (error) {
+      console.error('Sign up error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
    * Sign out current user
    * @returns {Promise<Object>} - { success, error }
    */

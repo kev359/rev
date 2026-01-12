@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Lelani School Transport Management System - Secure login for drivers and administrators">
-    <title>Login - Lelani School Transport System</title>
+    <meta name="description" content="Register - Lelani School Transport Management System">
+    <title>Register - Lelani School Transport System</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="assets/favicon.png">
@@ -23,10 +23,22 @@
             <p class="subtitle">Transport Management System</p>
         </div>
 
-        <!-- Login Form -->
-        <form id="loginForm" class="auth-form">
-            <h2>Login</h2>
+        <!-- Register Form -->
+        <form id="registerForm" class="auth-form">
+            <h2>Driver Registration</h2>
             
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    required 
+                    placeholder="John Doe"
+                    autocomplete="name"
+                >
+            </div>
+
             <div class="form-group">
                 <label for="email">Email Address</label>
                 <input 
@@ -40,30 +52,43 @@
             </div>
 
             <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    required 
+                    placeholder="+254 7..."
+                    autocomplete="tel"
+                >
+            </div>
+
+            <div class="form-group">
                 <label for="password">Password</label>
                 <input 
                     type="password" 
                     id="password" 
                     name="password" 
                     required 
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
+                    placeholder="Create a password (min 6 chars)"
+                    autocomplete="new-password"
+                    minlength="6"
                 >
             </div>
 
-            <div class="form-actions" style="display: flex; justify-content: space-between; align-items: center;">
-                <a href="forgot-password.html" class="forgot-password">Forgot Password?</a>
-                <a href="register.html" class="forgot-password" style="color: var(--color-primary);">Create account</a>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
-                <span class="btn-text">Login</span>
+            <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
+                <span class="btn-text">Create Account</span>
                 <span class="btn-loader" style="display: none;">
                     <span class="spinner"></span>
                 </span>
             </button>
 
+            <div class="form-footer">
+                <p>Already have an account? <a href="index.html">Login here</a></p>
+            </div>
+
             <div id="errorMessage" class="error-message" style="display: none;"></div>
+            <div id="successMessage" class="success-message" style="display: none; color: green; margin-top: 10px; text-align: center;"></div>
         </form>
 
         <!-- Footer -->
@@ -75,6 +100,6 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="src/config.js"></script>
-    <script type="module" src="src/auth/login.js"></script>
+    <script type="module" src="src/auth/register.js"></script>
 </body>
 </html>

@@ -115,6 +115,34 @@ class DriversService {
   }
 
   /**
+   * Register new driver profile (public)
+   * @param {Object} driverData - Driver data
+   * @returns {Promise<Object>} - Created driver
+   */
+  async register(driverData) {
+    try {
+      const { data, error } = await this.supabase
+        .from('drivers')
+        .insert([{
+          user_id: driverData.user_id,
+          name: driverData.name,
+          email: driverData.email,
+          phone: driverData.phone,
+          role: 'driver',
+          route_id: driverData.route_id || null
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Register driver error:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Update driver
    * @param {string} id - Driver ID
    * @param {Object} driverData - Driver data
