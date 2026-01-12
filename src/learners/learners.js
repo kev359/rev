@@ -198,6 +198,8 @@ function renderLearnersTable(learners) {
         <td>${sanitizeHTML(learner.class)}</td>
         <td>${sanitizeHTML(learner.pickup_area)}</td>
         <td>${learner.pickup_time}</td>
+        <td>${sanitizeHTML(learner.dropoff_area || '-')}</td>
+        <td>${learner.drop_time || '-'}</td>
         <td>${sanitizeHTML(learner.father_phone)}</td>
         <td>${sanitizeHTML(learner.mother_phone)}</td>
         <td>${route ? sanitizeHTML(route.name) : 'N/A'}</td>

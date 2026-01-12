@@ -364,7 +364,7 @@ input[type="radio"] {
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  overflow: hidden;
+  overflow-x: auto; /* Allow horizontal scroll */
   margin-bottom: var(--spacing-xl);
 }
 
