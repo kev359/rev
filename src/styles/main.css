@@ -369,7 +369,8 @@ input[type="radio"] {
 }
 
 .data-table {
-  width: 100%;
+  width: max-content; /* Allow table to grow beyond container */
+  min-width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-sm);
 }
@@ -391,6 +392,7 @@ input[type="radio"] {
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--table-border-color);
   color: var(--color-text-primary);
+  white-space: nowrap;
 }
 
 .data-table tbody tr:hover {
