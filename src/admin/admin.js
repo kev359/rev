@@ -514,13 +514,11 @@ async function openDriverModal(driverId = null) {
 
   if (driverId) {
     title.textContent = 'Edit Driver';
-    document.getElementById('driverPassword').removeAttribute('required');
-    if(passwordHint) passwordHint.textContent = 'Leave blank to keep existing password';
+    if(passwordHint) passwordHint.textContent = '';
     await loadDriverData(driverId);
   } else {
     title.textContent = 'Add Driver';
-    document.getElementById('driverPassword').setAttribute('required', 'required');
-    if(passwordHint) passwordHint.textContent = 'Required for new (min 6 chars)';
+    if(passwordHint) passwordHint.textContent = 'Drivers should register themselves';
   }
   
   modal.style.display = 'flex';
@@ -577,8 +575,7 @@ async function saveDriver() {
     email: document.getElementById('driverEmail').value.trim(),
     phone: document.getElementById('driverPhone').value.trim(),
     route_id: document.getElementById('driverRoute').value || null,
-    role: document.getElementById('driverRole').value,
-    password: document.getElementById('driverPassword').value.trim()
+    role: document.getElementById('driverRole').value
   };
   
   // Validate
@@ -589,14 +586,7 @@ async function saveDriver() {
     }
     return;
   }
-  
-  if (!currentDriverId && !formData.password) {
-     if(errorDiv) {
-        errorDiv.textContent = 'Password is required for new drivers';
-        errorDiv.style.display = 'block';
-    }
-    return;
-  }
+
 
   setButtonLoading(submitBtn, true);
   
