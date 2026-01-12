@@ -8,7 +8,8 @@
  * @returns {boolean} - True if valid
  */
 export function validatePhone(phone) {
-  const phoneRegex = /^\+254[0-9]{9}$/;
+  // Allow 07... or 01... (10 digits) OR +254... (13 digits)
+  const phoneRegex = /^(07|01)[0-9]{8}$|^\+254[0-9]{9}$/;
   return phoneRegex.test(phone);
 }
 
@@ -59,18 +60,17 @@ export function formatPhoneNumber(phone) {
   // Remove all non-numeric characters
   let cleaned = phone.replace(/\D/g, '');
   
-  // If starts with 0, replace with 254
-  if (cleaned.startsWith('0')) {
-    cleaned = '254' + cleaned.substring(1);
+  // If starts with 254, replace with 0
+  if (cleaned.startsWith('254')) {
+    cleaned = '0' + cleaned.substring(3);
   }
   
-  // If doesn't start with 254, add it
-  if (!cleaned.startsWith('254')) {
-    cleaned = '254' + cleaned;
+  // If no prefix and 9 digits (712...), add 0
+  if (cleaned.length === 9) {
+      cleaned = '0' + cleaned;
   }
   
-  // Add + prefix
-  return '+' + cleaned;
+  return cleaned;
 }
 
 /**

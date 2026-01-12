@@ -342,7 +342,7 @@ function openLearnerModal(learnerId = null) {
     // Pre-select driver's route if not admin
     if (currentDriver.role !== 'admin' && currentDriver.route_id) {
       document.getElementById('routeSelect').value = currentDriver.route_id;
-      document.getElementById('routeSelect').disabled = true;
+      // document.getElementById('routeSelect').disabled = true; // Allow drivers to change route if needed
       loadAreasForRoute(currentDriver.route_id);
     }
   }
