@@ -369,10 +369,22 @@ input[type="radio"] {
 }
 
 .data-table {
-  width: max-content; /* Allow table to grow beyond container */
-  min-width: 100%;
+  width: 100%;
+  min-width: max-content; /* Ensure table is at least as wide as content */
   border-collapse: collapse;
   font-size: var(--font-size-sm);
+  table-layout: auto;
+}
+
+/* Ensure minimum widths for specific columns */
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) {
+  min-width: 100px; /* Admission No */
+}
+
+.data-table th:nth-child(2),
+.data-table td:nth-child(2) {
+  min-width: 150px; /* Name */
 }
 
 .data-table thead {
