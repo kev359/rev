@@ -364,28 +364,55 @@ input[type="radio"] {
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  overflow-x: auto; /* Allow horizontal scroll */
+  overflow-x: auto;
+  overflow-y: visible;
   margin-bottom: var(--spacing-xl);
 }
 
 .data-table {
   width: 100%;
-  min-width: max-content; /* Ensure table is at least as wide as content */
+  min-width: 1200px; /* Force minimum width to trigger scroll on small screens */
   border-collapse: collapse;
   font-size: var(--font-size-sm);
-  table-layout: auto;
+  table-layout: fixed; /* Fixed layout for consistent column widths */
 }
 
-/* Ensure minimum widths for specific columns */
+/* Define explicit column widths */
 .data-table th:nth-child(1),
-.data-table td:nth-child(1) {
-  min-width: 100px; /* Admission No */
-}
+.data-table td:nth-child(1) { width: 110px; } /* Admission No */
 
 .data-table th:nth-child(2),
-.data-table td:nth-child(2) {
-  min-width: 150px; /* Name */
-}
+.data-table td:nth-child(2) { width: 140px; } /* Name */
+
+.data-table th:nth-child(3),
+.data-table td:nth-child(3) { width: 100px; } /* Class */
+
+.data-table th:nth-child(4),
+.data-table td:nth-child(4) { width: 110px; } /* Pickup Area */
+
+.data-table th:nth-child(5),
+.data-table td:nth-child(5) { width: 100px; } /* Pickup Time */
+
+.data-table th:nth-child(6),
+.data-table td:nth-child(6) { width: 110px; } /* Dropoff Area */
+
+.data-table th:nth-child(7),
+.data-table td:nth-child(7) { width: 100px; } /* Dropoff Time */
+
+.data-table th:nth-child(8),
+.data-table td:nth-child(8) { width: 110px; } /* Father Phone */
+
+.data-table th:nth-child(9),
+.data-table td:nth-child(9) { width: 110px; } /* Mother Phone */
+
+.data-table th:nth-child(10),
+.data-table td:nth-child(10) { width: 100px; } /* Route */
+
+.data-table th:nth-child(11),
+.data-table td:nth-child(11) { width: 80px; } /* Status */
+
+.data-table th:nth-child(12),
+.data-table td:nth-child(12) { width: 100px; } /* Actions */
 
 .data-table thead {
   background-color: var(--table-header-bg);
@@ -398,6 +425,8 @@ input[type="radio"] {
   color: var(--color-text-primary);
   border-bottom: 2px solid var(--table-border-color);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .data-table td {
@@ -405,6 +434,8 @@ input[type="radio"] {
   border-bottom: 1px solid var(--table-border-color);
   color: var(--color-text-primary);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .data-table tbody tr:hover {
