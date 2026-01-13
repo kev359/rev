@@ -193,71 +193,39 @@ function renderLearnersTable(learners) {
 
     return `
       <tr>
-        <td colspan="12">
-          <div class="learner-card">
-            <div class="learner-card-header">
-              <div class="learner-main-info">
-                <h3>${sanitizeHTML(learner.name)}</h3>
-                <span class="admission-badge">${sanitizeHTML(learner.admission_no)}</span>
-                <span class="status-badge ${learner.active ? 'active' : 'inactive'}">
-                  ${learner.active ? 'Active' : 'Inactive'}
-                </span>
-              </div>
-              <div class="action-buttons">
-                ${canEdit ? `
-                  <button class="action-btn edit" onclick="editLearner('${learner.id}')">
-                    Edit
-                  </button>
-                  ${learner.active ? `
-                    <button class="action-btn deactivate" onclick="deactivateLearner('${learner.id}')">
-                      Deactivate
-                    </button>
-                  ` : `
-                    <button class="action-btn activate" onclick="reactivateLearner('${learner.id}')">
-                      Reactivate
-                    </button>
-                  `}
-                ` : `
-                  <span class="view-only-badge">View Only</span>
-                `}
-              </div>
-            </div>
-            <div class="learner-card-body">
-              <div class="info-grid">
-                <div class="info-item">
-                  <label>Class</label>
-                  <span>${sanitizeHTML(learner.class)}</span>
-                </div>
-                <div class="info-item">
-                  <label>Route</label>
-                  <span>${route ? sanitizeHTML(route.name) : 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                  <label>Pickup Area</label>
-                  <span>${sanitizeHTML(learner.pickup_area)}</span>
-                </div>
-                <div class="info-item">
-                  <label>Pickup Time</label>
-                  <span>${learner.pickup_time}</span>
-                </div>
-                <div class="info-item">
-                  <label>Dropoff Area</label>
-                  <span>${sanitizeHTML(learner.dropoff_area || '-')}</span>
-                </div>
-                <div class="info-item">
-                  <label>Dropoff Time</label>
-                  <span>${learner.drop_time || '-'}</span>
-                </div>
-                <div class="info-item">
-                  <label>Father Phone</label>
-                  <span>${sanitizeHTML(learner.father_phone)}</span>
-                </div>
-                <div class="info-item">
-                  <label>Mother Phone</label>
-                  <span>${sanitizeHTML(learner.mother_phone)}</span>
-                </div>
-              </div>
-            </div>
+        <td>${sanitizeHTML(learner.admission_no)}</td>
+        <td>${sanitizeHTML(learner.name)}</td>
+        <td>${sanitizeHTML(learner.class)}</td>
+        <td>${sanitizeHTML(learner.pickup_area)}</td>
+        <td>${learner.pickup_time}</td>
+        <td>${sanitizeHTML(learner.dropoff_area || '-')}</td>
+        <td>${learner.drop_time || '-'}</td>
+        <td>${sanitizeHTML(learner.father_phone)}</td>
+        <td>${sanitizeHTML(learner.mother_phone)}</td>
+        <td>${route ? sanitizeHTML(route.name) : 'N/A'}</td>
+        <td>
+          <span class="status-badge ${learner.active ? 'active' : 'inactive'}">
+            ${learner.active ? 'Active' : 'Inactive'}
+          </span>
+        </td>
+        <td>
+          <div class="action-buttons">
+            ${canEdit ? `
+              <button class="action-btn edit" onclick="editLearner('${learner.id}')">
+                Edit
+              </button>
+              ${learner.active ? `
+                <button class="action-btn deactivate" onclick="deactivateLearner('${learner.id}')">
+                  Deactivate
+                </button>
+              ` : `
+                <button class="action-btn activate" onclick="reactivateLearner('${learner.id}')">
+                  Reactivate
+                </button>
+              `}
+            ` : `
+              <span class="text-muted">View Only</span>
+            `}
           </div>
         </td>
       </tr>
