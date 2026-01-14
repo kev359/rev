@@ -1,82 +1,76 @@
 /* ============================================
-   LEARNER CARDS LAYOUT
+   LEARNERS PAGE STYLES
    ============================================ */
 
-.learner-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+/* Filters Section - Horizontal Layout */
+.filters-section {
+  background-color: var(--color-surface);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-md);
-  transition: box-shadow 0.2s ease;
-}
-
-.learner-card:hover {
   box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
 }
 
-.learner-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.search-box {
   margin-bottom: var(--spacing-md);
-  padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--color-border);
 }
 
-.learner-main-info {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
-}
-
-.learner-main-info h3 {
-  margin: 0;
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-
-.admission-badge {
-  background-color: var(--color-info-bg);
-  color: var(--color-info);
-  padding: 4px 12px;
-  border-radius: 12px;
+.search-box input {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.learner-card-body {
-  padding-top: var(--spacing-sm);
+.search-box input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-alpha);
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-md);
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.info-item label {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+.search-box input::placeholder {
   color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-.info-item span {
+/* Filter Controls - Horizontal Grid */
+.filter-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+}
+
+.filter-select {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
+  background-color: var(--color-background);
   color: var(--color-text-primary);
-  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  transition: border-color 0.2s ease;
 }
 
+.filter-select:hover {
+  border-color: var(--color-primary);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-alpha);
+}
+
+/* View Only Badge */
 .view-only-badge {
   background-color: var(--color-background);
   color: var(--color-text-secondary);
@@ -85,16 +79,9 @@
   font-size: var(--font-size-sm);
 }
 
-/* Hide table headers when using card layout */
-.data-table.card-view thead {
-  display: none;
-}
-
-.data-table.card-view td {
-  padding: 0;
-  border: none;
-}
-
-.data-table.card-view tr {
-  display: block;
+/* Responsive */
+@media (max-width: 768px) {
+  .filter-controls {
+    grid-template-columns: 1fr;
+  }
 }
