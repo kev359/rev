@@ -527,6 +527,7 @@ async function handleFormSubmit(e) {
   }
 
   // Validate form
+  // Validate form
   const validation = validateForm(formData, {
     name: { required: true, label: 'Learner Name' },
     admission_no: { required: true, label: 'Admission Number' },
@@ -541,7 +542,27 @@ async function handleFormSubmit(e) {
   });
 
   if (!validation.valid) {
-    displayFormErrors(validation.errors, form);
+    // Map service keys (snake_case) to form IDs (camelCase)
+    const mappedErrors = {};
+    const keyMap = {
+      name: 'learnerName',
+      admission_no: 'admissionNo',
+      class: 'learnerGrade', // Approximate target for class error
+      pickup_area: 'pickupArea',
+      pickup_time: 'pickupTime',
+      dropoff_area: 'dropoffArea',
+      drop_time: 'dropTime',
+      father_phone: 'fatherPhone',
+      mother_phone: 'motherPhone',
+      route_id: 'routeSelect'
+    };
+
+    Object.keys(validation.errors).forEach(key => {
+      const formId = keyMap[key] || key;
+      mappedErrors[formId] = validation.errors[key];
+    });
+
+    displayFormErrors(mappedErrors, form);
     return;
   }
 
