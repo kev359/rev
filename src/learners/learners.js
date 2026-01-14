@@ -189,7 +189,8 @@ function renderLearnersTable(learners) {
 
   tableBody.innerHTML = learners.map(learner => {
     const route = allRoutes.find(r => r.id === learner.route_id);
-    const canEdit = currentDriver.role === 'admin' || currentDriver.route_id === learner.route_id;
+    // All drivers can edit any learner (not just their own route)
+    const canEdit = true;
 
     return `
       <tr>
@@ -210,21 +211,20 @@ function renderLearnersTable(learners) {
         </td>
         <td>
           <div class="action-buttons">
-            ${canEdit ? `
-              <button class="action-btn edit" onclick="editLearner('${learner.id}')">
-                Edit
+            <button class="action-btn edit" onclick="editLearner('${learner.id}')">
+              Edit
+            </button>
+            <button class="action-btn transfer" onclick="openTransferModal('${learner.id}')">
+              Transfer
+            </button>
+            ${learner.active ? `
+              <button class="action-btn deactivate" onclick="deactivateLearner('${learner.id}')">
+                Deactivate
               </button>
-              ${learner.active ? `
-                <button class="action-btn deactivate" onclick="deactivateLearner('${learner.id}')">
-                  Deactivate
-                </button>
-              ` : `
-                <button class="action-btn activate" onclick="reactivateLearner('${learner.id}')">
-                  Reactivate
-                </button>
-              `}
             ` : `
-              <span class="text-muted">View Only</span>
+              <button class="action-btn activate" onclick="reactivateLearner('${learner.id}')">
+                Reactivate
+              </button>
             `}
           </div>
         </td>
@@ -256,6 +256,13 @@ function populateFilters() {
   const routeSelect = document.getElementById('routeSelect');
   if (routeSelect) {
     routeSelect.innerHTML = '<option value="">Select route</option>' +
+      allRoutes.map(r => `<option value="${r.id}">${sanitizeHTML(r.name)}</option>`).join('');
+  }
+
+  // Populate transfer route select
+  const transferRouteSelect = document.getElementById('transferRouteSelect');
+  if (transferRouteSelect) {
+    transferRouteSelect.innerHTML = '<option value="">Select new route</option>' +
       allRoutes.map(r => `<option value="${r.id}">${sanitizeHTML(r.name)}</option>`).join('');
   }
 }
@@ -306,9 +313,22 @@ function setupEventListeners() {
   }
 
   // Pickup time change - check conflicts
+  // Pickup time change - check conflicts
   const pickupTime = document.getElementById('pickupTime');
   if (pickupTime) {
     pickupTime.addEventListener('change', checkPickupConflicts);
+  }
+
+  // Transfer Modal
+  const closeTransferModalBtn = document.getElementById('closeTransferModal');
+  const cancelTransferBtn = document.getElementById('cancelTransferBtn');
+  
+  if (closeTransferModalBtn) closeTransferModalBtn.addEventListener('click', closeTransferModal);
+  if (cancelTransferBtn) cancelTransferBtn.addEventListener('click', closeTransferModal);
+
+  const transferForm = document.getElementById('transferForm');
+  if (transferForm) {
+    transferForm.addEventListener('submit', handleTransferSubmit);
   }
 }
 
@@ -569,6 +589,82 @@ async function handleFormSubmit(e) {
 window.editLearner = function(learnerId) {
   openLearnerModal(learnerId);
 };
+
+/**
+ * Open transfer modal
+ */
+window.openTransferModal = function(learnerId) {
+  const modal = document.getElementById('transferModal');
+  const learner = allLearners.find(l => l.id === learnerId);
+  if (!modal || !learner) return;
+
+  document.getElementById('transferLearnerId').value = learner.id;
+  document.getElementById('transferLearnerName').textContent = `Transferring: ${learner.name} (${learner.admission_no})`;
+  document.getElementById('transferRouteSelect').value = learner.route_id || '';
+  document.getElementById('transferError').style.display = 'none';
+
+  modal.classList.add('active');
+};
+
+/**
+ * Close transfer modal
+ */
+function closeTransferModal() {
+  const modal = document.getElementById('transferModal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+}
+
+/**
+ * Handle transfer submit
+ */
+async function handleTransferSubmit(e) {
+  e.preventDefault();
+  
+  const submitBtn = document.getElementById('submitTransferBtn');
+  const learnerId = document.getElementById('transferLearnerId').value;
+  const newRouteId = document.getElementById('transferRouteSelect').value;
+  const errorDiv = document.getElementById('transferError');
+  const learner = allLearners.find(l => l.id === learnerId);
+
+  if (!learnerId || !newRouteId) return;
+
+  if (learner && learner.route_id === newRouteId) {
+    showMessage('Learner is already on this route', 'error', errorDiv);
+    return;
+  }
+
+  setButtonLoading(submitBtn, true);
+  errorDiv.style.display = 'none';
+
+  try {
+    // Preserve all existing details, just update route_id
+    // Note: We're calling update which expects a partial object with fields to update
+    await learnersService.update(learnerId, {
+      name: learner.name,
+      admission_no: learner.admission_no,
+      class: learner.class,
+      pickup_area: learner.pickup_area,
+      pickup_time: learner.pickup_time,
+      dropoff_area: learner.dropoff_area,
+      drop_time: learner.drop_time,
+      father_phone: learner.father_phone,
+      mother_phone: learner.mother_phone,
+      route_id: newRouteId, // The only thing changing
+      active: learner.active
+    });
+
+    await loadLearners();
+    closeTransferModal();
+    alert('Learner transferred successfully');
+  } catch (error) {
+    console.error('Transfer error:', error);
+    showMessage('Failed to transfer learner', 'error', errorDiv);
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
 
 /**
  * Deactivate learner

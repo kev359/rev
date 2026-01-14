@@ -274,6 +274,39 @@
         </div>
     </div>
 
+    <!-- Transfer Learner Modal -->
+    <div id="transferModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="transferModalTitle">Transfer Learner</h2>
+                <button class="close-btn" id="closeTransferModal">&times;</button>
+            </div>
+            <form id="transferForm">
+                <input type="hidden" id="transferLearnerId">
+                <div class="form-group">
+                    <p id="transferLearnerName" style="margin-bottom: var(--spacing-md); font-weight: var(--font-weight-medium);"></p>
+                    <label for="transferRouteSelect">New Route <span class="required">*</span></label>
+                    <select id="transferRouteSelect" name="transferRouteSelect" required>
+                        <option value="">Select new route</option>
+                        <!-- Populated by JavaScript -->
+                    </select>
+                </div>
+
+                <div id="transferError" class="error-message" style="display: none;"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelTransferBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitTransferBtn">
+                        <span class="btn-text">Transfer Learner</span>
+                        <span class="btn-loader" style="display: none;">
+                            <span class="spinner"></span>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="src/config.js"></script>
