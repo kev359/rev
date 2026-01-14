@@ -370,14 +370,30 @@ input[type="radio"] {
 }
 
 .data-table {
+  display: table !important;
   width: 1370px; /* Total of all column widths */
   border-collapse: collapse;
   font-size: var(--font-size-sm);
   table-layout: fixed; /* Respect colgroup widths */
 }
 
+/* Force correct table display for all elements */
 .data-table thead {
+  display: table-header-group !important;
   background-color: var(--table-header-bg);
+}
+
+.data-table tbody {
+  display: table-row-group !important;
+}
+
+.data-table tr {
+  display: table-row !important;
+}
+
+.data-table th,
+.data-table td {
+  display: table-cell !important;
 }
 
 .data-table th,
