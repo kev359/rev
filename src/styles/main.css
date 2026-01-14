@@ -370,47 +370,31 @@ input[type="radio"] {
 }
 
 .data-table {
-  width: 100%;
-  min-width: 1400px; /* Ensure enough space for all columns */
+  width: 1370px; /* Total of all column widths */
   border-collapse: collapse;
   font-size: var(--font-size-sm);
-  table-layout: fixed; /* STRICTLY align headers and body */
+  table-layout: fixed; /* Respect colgroup widths */
 }
-
-/* Explicit widths for all 12 columns */
-.data-table th:nth-child(1), .data-table td:nth-child(1) { width: 90px; } /* Adm No */
-.data-table th:nth-child(2), .data-table td:nth-child(2) { width: 160px; } /* Name */
-.data-table th:nth-child(3), .data-table td:nth-child(3) { width: 110px; } /* Class */
-.data-table th:nth-child(4), .data-table td:nth-child(4) { width: 140px; } /* Pickup Area */
-.data-table th:nth-child(5), .data-table td:nth-child(5) { width: 90px; } /* Pickup Time */
-.data-table th:nth-child(6), .data-table td:nth-child(6) { width: 140px; } /* Drop A */
-.data-table th:nth-child(7), .data-table td:nth-child(7) { width: 90px; } /* Drop T */
-.data-table th:nth-child(8), .data-table td:nth-child(8) { width: 110px; } /* Father */
-.data-table th:nth-child(9), .data-table td:nth-child(9) { width: 110px; } /* Mother */
-.data-table th:nth-child(10), .data-table td:nth-child(10) { width: 100px; } /* Route */
-.data-table th:nth-child(11), .data-table td:nth-child(11) { width: 90px; } /* Status */
-.data-table th:nth-child(12), .data-table td:nth-child(12) { width: 100px; } /* Actions */
 
 .data-table thead {
   background-color: var(--table-header-bg);
 }
 
-.data-table th {
-  padding: var(--spacing-md);
-  text-align: left;
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  border-bottom: 2px solid var(--table-border-color);
-  white-space: nowrap; /* Keep headers single line */
-}
-
+.data-table th,
 .data-table td {
   padding: var(--spacing-md);
+  text-align: left;
   border-bottom: 1px solid var(--table-border-color);
   color: var(--color-text-primary);
-  white-space: normal; /* ALLOW WRAPPING for data */
+  white-space: normal;
   word-wrap: break-word;
-  vertical-align: top;
+  vertical-align: middle;
+}
+
+.data-table th {
+  font-weight: var(--font-weight-semibold);
+  border-bottom: 2px solid var(--table-border-color);
+  white-space: nowrap;
 }
 
 .data-table tbody tr:hover {
